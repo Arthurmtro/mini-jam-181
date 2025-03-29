@@ -125,7 +125,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: bull_1
     originalName: 
-    pivot: {x: 0.45999998, y: 0.4915254}
+    pivot: {x: 0.52, y: 0.5084746}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -157,8 +157,8 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 9
-        y: 3
+        x: 6
+        y: 2
         width: 50
         height: 59
       spriteId: 5ce3dfbe010be4d77b14944c768832fb

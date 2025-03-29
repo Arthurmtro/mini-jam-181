@@ -55,11 +55,11 @@ namespace BunnyCoffee
             IsActive = false;
         }
 
-        public void Activate()
+        public void Activate(GameManager game)
         {
             Reset();
             IsActive = true;
-            StartWaitingIdlePosition();
+            StartWaitingIdlePosition(game);
         }
 
         // State init
@@ -140,8 +140,13 @@ namespace BunnyCoffee
             customer.StartReceivingOrder();
         }
 
-        public void StartWaitingIdlePosition()
+        public void StartWaitingIdlePosition(GameManager game)
         {
+            if (product != null)
+            {
+                game.CompleteProduct(product.Value);
+            }
+
             product = null;
             Status = EmployeeStatus.WaitingIdlePosition;
         }
@@ -182,7 +187,7 @@ namespace BunnyCoffee
                     UpdateWithStatusMovingToCustomerToDeliver();
                     break;
                 case EmployeeStatus.Delivering:
-                    UpdateWithStatusDelivering(deltaTime);
+                    UpdateWithStatusDelivering(deltaTime, game);
                     break;
                 case EmployeeStatus.WaitingIdlePosition:
                     UpdateWithStatusWaitingIdlePosition(game);
@@ -258,11 +263,11 @@ namespace BunnyCoffee
             }
         }
 
-        public void UpdateWithStatusDelivering(float deltaTime)
+        public void UpdateWithStatusDelivering(float deltaTime, GameManager game)
         {
             if (RemainingTime == 0)
             {
-                StartWaitingIdlePosition();
+                StartWaitingIdlePosition(game);
                 return;
             }
 
@@ -319,11 +324,15 @@ namespace BunnyCoffee
         {
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(transform.position, 0.5f);
-            Handles.Label(transform.position + 1f * Vector3.up + 1f * Vector3.left, Status.ToString());
+            GUIStyle centeredStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter
+            };
+            Handles.Label(transform.position + 1f * Vector3.up, Status.ToString(), centeredStyle);
 
             if (product.HasValue)
             {
-                Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name);
+                Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name, centeredStyle);
             }
         }
     }

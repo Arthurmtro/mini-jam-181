@@ -409,11 +409,16 @@ namespace BunnyCoffee
         {
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(transform.position, 0.5f);
-            Handles.Label(transform.position + 1f * Vector3.up, Status.ToString());
+
+            GUIStyle centeredStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter
+            };
+            Handles.Label(transform.position + 1f * Vector3.up, Status.ToString(), centeredStyle);
 
             if (product.HasValue)
             {
-                Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name);
+                Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name, centeredStyle);
             }
         }
     }

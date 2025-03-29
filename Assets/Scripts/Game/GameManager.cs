@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace BunnyCoffee
 {
@@ -15,6 +20,7 @@ namespace BunnyCoffee
 
         [Header("Resources")]
         [SerializeField] ResourceManager resources;
+        [SerializeField] GameStateManager gameState;
         Dictionary<string, Product> products = new();
 
         [Header("Positions")]
@@ -86,11 +92,14 @@ namespace BunnyCoffee
                 customers[i] = newCustomer.GetComponent<CustomerController>();
             }
 
-            AddAppliance();
-            AddAppliance(5);
-            AddAppliance(5);
-            AddEmployee();
-            AddEmployee();
+            foreach (var applianceLevel in gameState.GameState.ApplianceLevels)
+            {
+                AddAppliance(applianceLevel);
+            }
+            for (int i = 0; i < gameState.GameState.NumEmployees; i++)
+            {
+                AddEmployee();
+            }
 
             CalculateAllProducts();
         }
@@ -121,7 +130,7 @@ namespace BunnyCoffee
             timeToCustomer = Mathf.Max(0, timeToCustomer - accumulatedDelta);
             if (timeToCustomer == 0)
             {
-                AddCustomer(resources.ProductTypes.AtIndex(0).Id);
+                AddCustomer();
             }
 
             accumulatedDelta = 0;
@@ -130,12 +139,13 @@ namespace BunnyCoffee
         void AddAppliance(int level = 0)
         {
             int nextIndex = nextApplianceIndex;
-            if (nextIndex < 0 || nextIndex >= appliances.Length)
+            if (nextIndex < 0 || nextIndex >= appliances.Length || level < 0)
             {
                 return;
             }
 
             appliances[nextIndex].Activate(level);
+            CalculateAllProducts();
         }
 
         void AddEmployee()
@@ -146,10 +156,10 @@ namespace BunnyCoffee
                 return;
             }
 
-            employees[nextIndex].Activate();
+            employees[nextIndex].Activate(this);
         }
 
-        void AddCustomer(string productId)
+        void AddCustomer()
         {
             CustomerController nextCustomer = FindNextCustomer();
             if (nextCustomer == null)
@@ -221,11 +231,6 @@ namespace BunnyCoffee
             return Array.Find(employeeIdlePositions, position => !position.IsBusy);
         }
 
-        public BarPosition FindFreeBarPosition()
-        {
-            return Array.Find(barPositions, position => !position.IsBusy);
-        }
-
         public QueuePosition FindFreeQueuePosition()
         {
             return Array.Find(queuePositions, position => !position.IsBusy);
@@ -239,11 +244,6 @@ namespace BunnyCoffee
             }
 
             return queuePositions[position.Index - 1];
-        }
-
-        public Product? GetRandomProduct()
-        {
-            return products.Values.ElementAt(UnityEngine.Random.Range(0, products.Count));
         }
 
         public bool IsQueueEmpty()
@@ -269,6 +269,17 @@ namespace BunnyCoffee
             return true;
         }
 
+        public BarPosition FindFreeBarPosition()
+        {
+            return Array.Find(barPositions, position => !position.IsBusy);
+        }
+
+
+        public Product? GetRandomProduct()
+        {
+            return products.Values.ElementAt(UnityEngine.Random.Range(0, products.Count));
+        }
+
         public TableController FindFreeTable()
         {
             return Array.Find(tableControllers, table => !table.IsBusy);
@@ -278,6 +289,49 @@ namespace BunnyCoffee
         {
             return Array.Find(appliances, appliance => appliance.CanPrepare(productId));
         }
+
+        // Change in game state
+
+        public void CompleteProduct(Product product)
+        {
+            gameState.AddMoney(product.Price);
+        }
+
+        public void HireEmployee()
+        {
+            if (gameState.GameState.NumEmployees >= employees.Length)
+            {
+                return;
+            }
+
+            AddEmployee();
+            gameState.AddEmployee();
+        }
+
+        public void BuyAppliance()
+        {
+            if (gameState.GameState.ApplianceLevels.Length >= appliances.Length)
+            {
+                return;
+            }
+
+            AddAppliance(0);
+            gameState.AddAppliance();
+        }
+
+        public void LevelUpAppliance(int index)
+        {
+            if (index < 0 || index >= appliances.Length)
+            {
+                return;
+            }
+
+            appliances[index].LevelUp();
+            string levels = string.Join(",", appliances.Select(appliance => appliance.Level.ToString()));
+            gameState.UpdateApplicationLevels(levels);
+        }
+
+        //
 
         CustomerController FindNextCustomer()
         {
@@ -310,6 +364,11 @@ namespace BunnyCoffee
             products = new Dictionary<string, Product>();
             foreach (var appliance in appliances)
             {
+                if (!appliance.IsActive)
+                {
+                    continue;
+                }
+
                 ApplianceType type = resources.ApplianceTypes.ById(appliance.TypeId);
                 foreach (ApplianceTypeLevel level in type.Levels)
                 {
@@ -323,6 +382,55 @@ namespace BunnyCoffee
                         }
                     }
                 }
+            }
+        }
+
+
+#if UNITY_EDITOR
+        [CustomEditor(typeof(GameManager))]
+        public class GameManagerEditor : Editor
+        {
+            public override void OnInspectorGUI()
+            {
+                DrawDefaultInspector();
+
+                GameManager gameManager = (GameManager)target;
+
+                if (EditorApplication.isPlaying)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+                    EditorGUILayout.Space();
+
+                    if (GUILayout.Button("Hire Employee"))
+                    {
+                        gameManager.HireEmployee();
+                    }
+
+                    if (GUILayout.Button("Add Appliance"))
+                    {
+                        gameManager.BuyAppliance();
+                    }
+
+                    if (gameManager.appliances != null)
+                    {
+                        for (int i = 0; i < gameManager.appliances.Length; i++)
+                        {
+                            var appliance = gameManager.appliances[i];
+
+                            if (appliance.CanLevelUp)
+                            {
+                                if (GUILayout.Button($"{appliance.name} [{i}] - Level UP"))
+                                {
+                                    gameManager.LevelUpAppliance(i);
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+#endif
             }
         }
     }

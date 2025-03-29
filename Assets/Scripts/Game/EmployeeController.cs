@@ -1,13 +1,13 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.RenderGraphModule;
 
 namespace BunnyCoffee
 {
     public enum EmployeeStatus
     {
         Idle,
-        Waiting,
         MovingToCustomer,
         AskingCustomer,
         WaitingForAppliance,
@@ -15,6 +15,8 @@ namespace BunnyCoffee
         Preparing,
         MovingToCustomerToDeliver,
         Delivering,
+        WaitingIdlePosition,
+        MovingToIdle,
     }
 
     [RequireComponent(typeof(NavMeshAgent))]
@@ -29,6 +31,7 @@ namespace BunnyCoffee
         public float RemainingTime { get; private set; }
         public bool TimeHasFinished => RemainingTime == 0;
 
+        EmployeeIdlePosition idlePosition;
         CustomerController customer;
         ApplianceController appliance;
 
@@ -56,6 +59,7 @@ namespace BunnyCoffee
         {
             Reset();
             IsActive = true;
+            StartWaitingIdlePosition();
         }
 
         // State init
@@ -66,15 +70,15 @@ namespace BunnyCoffee
             customer = null;
         }
 
-        public void StartWaiting()
-        {
-            Status = EmployeeStatus.Waiting;
-        }
-
         public void StartMovingToCustomer()
         {
             Status = EmployeeStatus.MovingToCustomer;
-            MoveToTarget(customer.BarPosition.Employee);
+            MoveToTarget(customer.BarPosition.EmployeePosition);
+            if (idlePosition != null)
+            {
+                idlePosition.Free();
+                idlePosition = null;
+            }
         }
 
         public void StartAskingCustomer()
@@ -118,7 +122,7 @@ namespace BunnyCoffee
             }
 
             Status = EmployeeStatus.MovingToCustomerToDeliver;
-            MoveToTarget(customer.BarPosition.Employee);
+            MoveToTarget(customer.BarPosition.EmployeePosition);
         }
 
         public void StartDelivering()
@@ -126,6 +130,19 @@ namespace BunnyCoffee
             Status = EmployeeStatus.Delivering;
             RemainingTime = TimeToDeliver;
             customer.StartReceivingOrder();
+        }
+
+        public void StartWaitingIdlePosition()
+        {
+            Status = EmployeeStatus.WaitingIdlePosition;
+        }
+
+        public void StartMovingToIdle(EmployeeIdlePosition position)
+        {
+            Status = EmployeeStatus.MovingToIdle;
+            idlePosition = position;
+            idlePosition.Reserve();
+            MoveToTarget(idlePosition.EmployeePosition);
         }
 
         // update by status
@@ -136,9 +153,6 @@ namespace BunnyCoffee
             {
                 case EmployeeStatus.Idle:
                     UpdateWithStatusIdle(game);
-                    break;
-                case EmployeeStatus.Waiting:
-                    UpdateWithStatusWaiting(deltaTime);
                     break;
                 case EmployeeStatus.MovingToCustomer:
                     UpdateWithStatusMovingToCustomer(deltaTime);
@@ -161,22 +175,18 @@ namespace BunnyCoffee
                 case EmployeeStatus.Delivering:
                     UpdateWithStatusDelivering(deltaTime);
                     break;
+                case EmployeeStatus.WaitingIdlePosition:
+                    UpdateWithStatusWaitingIdlePosition(game);
+                    break;
+                case EmployeeStatus.MovingToIdle:
+                    UpdateWithStatusMovingToIdle(game);
+                    break;
             }
         }
 
         public void UpdateWithStatusIdle(GameManager game)
         {
-            CustomerController customerWaiting = game.FindCustomerWaiting();
-            if (customerWaiting != null)
-            {
-                customer = customerWaiting;
-                customer.Attend();
-                StartMovingToCustomer();
-            }
-        }
-
-        public void UpdateWithStatusWaiting(float deltaTime)
-        {
+            FindCustomerToAttend(game);
         }
 
         public void UpdateWithStatusMovingToCustomer(float deltaTime)
@@ -238,13 +248,48 @@ namespace BunnyCoffee
         {
             if (RemainingTime == 0)
             {
-                StartIdle();
+                StartWaitingIdlePosition();
                 return;
             }
 
             UpdateTimer(deltaTime);
         }
 
+        public void UpdateWithStatusWaitingIdlePosition(GameManager game)
+        {
+            EmployeeIdlePosition position = game.FindEmployeeIdlePosition();
+            if (position != null)
+            {
+                StartMovingToIdle(position);
+            }
+        }
+
+        public void UpdateWithStatusMovingToIdle(GameManager game)
+        {
+            if (FindCustomerToAttend(game))
+            {
+                return;
+            }
+
+            if (HasReachedDestination)
+            {
+                StartIdle();
+            }
+        }
+
+        bool FindCustomerToAttend(GameManager game)
+        {
+            CustomerController customerWaiting = game.FindCustomerWaiting();
+            if (customerWaiting != null)
+            {
+                customer = customerWaiting;
+                customer.Attend();
+                StartMovingToCustomer();
+                return true;
+            }
+
+            return false;
+        }
 
         void MoveToTarget(Vector3 target)
         {

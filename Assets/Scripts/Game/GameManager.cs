@@ -7,7 +7,7 @@ namespace BunnyCoffee
     public class GameManager : MonoBehaviour
     {
         const int MaxAppliances = 4;
-        const int MaxEmployees = 10;
+        const int MaxEmployees = 4;
         const int MaxCustomers = 40;
         // seconds after the controllers are updated - to avoid too many irrelevant updates
         const float processEvery = 0.1f;
@@ -19,12 +19,13 @@ namespace BunnyCoffee
         [SerializeField] CustomerTypeCollection customerTypes;
 
         [Header("Positions")]
+        [SerializeField] Transform employeesIdlePositionsContainer;
         [SerializeField] Transform employeeInactivePosition;
         [SerializeField] Transform customerInactivePosition;
         [SerializeField] Transform queuePositionsContainer;
         [SerializeField] Transform barPositionsContainer;
-        public Vector3 CustomerLeavePosition => customerInactivePosition.position;
         Transform employeesContainer;
+        EmployeeIdlePosition[] employeeIdlePositions;
         Transform customersContainer;
         QueuePosition[] queuePositions;
         BarPosition[] barPositions;
@@ -50,6 +51,7 @@ namespace BunnyCoffee
         void Start()
         {
             // Init positions
+            employeeIdlePositions = employeesIdlePositionsContainer.GetComponentsInChildren<EmployeeIdlePosition>().ToArray();
             queuePositions = queuePositionsContainer.GetComponentsInChildren<QueuePosition>().ToArray();
             for (int i = 0; i < queuePositions.Length; i++)
             {
@@ -69,7 +71,8 @@ namespace BunnyCoffee
             {
                 GameObject newEmployee = Instantiate(employeeController.gameObject, employeesContainer);
                 newEmployee.name = $"[{i}] Employee";
-                newEmployee.transform.position = employeeInactivePosition.position;
+                EmployeeIdlePosition employeeIdlePosition = employeeIdlePositions[i % employeeIdlePositions.Length];
+                newEmployee.transform.position = GetInactivePosition(employeeInactivePosition.position, i);
 
                 employees[i] = newEmployee.GetComponent<EmployeeController>();
             }
@@ -79,18 +82,15 @@ namespace BunnyCoffee
                 CustomerType randomCustomerType = customerTypes.AtIndex(UnityEngine.Random.Range(0, customerTypes.Count));
                 GameObject newCustomer = Instantiate(randomCustomerType.Controller.gameObject, customersContainer);
                 newCustomer.name = $"[{i}] Customer (Type={randomCustomerType.Name})";
-                newCustomer.transform.position = GetCustomerInactivePosition(i);
+                newCustomer.transform.position = GetInactivePosition(customerInactivePosition.position, i);
 
                 customers[i] = newCustomer.GetComponent<CustomerController>();
             }
 
-            // AddAppliance(applianceTypes.AtIndex(0), 0);
             AddEmployee();
             AddEmployee();
-            AddEmployee();
-            AddEmployee();
-            AddEmployee();
-            // AddCustomer(productTypes.AtIndex(0).Id);
+            // AddEmployee();
+            // AddEmployee();
         }
 
         void Update()
@@ -203,6 +203,11 @@ namespace BunnyCoffee
             return Array.Find(customers, customer => customer.Status == CustomerStatus.WaitingEmployee && !customer.IsAttended);
         }
 
+        public EmployeeIdlePosition FindEmployeeIdlePosition()
+        {
+            return Array.Find(employeeIdlePositions, position => !position.IsBusy);
+        }
+
         public BarPosition FindFreeBarPosition()
         {
             return Array.Find(barPositions, position => !position.IsBusy);
@@ -272,14 +277,14 @@ namespace BunnyCoffee
             return null;
         }
 
-        Vector3 GetCustomerInactivePosition(int index)
+        Vector3 GetInactivePosition(Vector3 basePosition, int index)
         {
             int gridSize = 10;
             int distance = 5;
             int x = index / gridSize;
             int y = index % gridSize;
 
-            return new Vector3(customerInactivePosition.position.x + x * distance, customerInactivePosition.position.y + y * distance, customerInactivePosition.position.z);
+            return new Vector3(basePosition.x + x * distance, basePosition.y + y * distance, basePosition.z);
         }
     }
 

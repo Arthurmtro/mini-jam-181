@@ -62,11 +62,6 @@ namespace BunnyCoffee
             };
         }
 
-        public void OnWaiting()
-        {
-            Status = EmployeeStatus.Waiting;
-        }
-
         public void OnMovingToCustomer()
         {
             Status = EmployeeStatus.MovingToCustomer;

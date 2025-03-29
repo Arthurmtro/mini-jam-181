@@ -138,7 +138,7 @@ namespace BunnyCoffee
             BarPosition = barPosition;
             BarPosition.Reserve();
             Status = CustomerStatus.MovingToBar;
-            MoveToTarget(barPosition.Customer);
+            MoveToTarget(barPosition.CustomerPosition);
         }
 
         public void StartThinkingOrder()

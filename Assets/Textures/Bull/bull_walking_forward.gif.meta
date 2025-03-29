@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      bull_walking_forward_0: 5884747017539273456
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

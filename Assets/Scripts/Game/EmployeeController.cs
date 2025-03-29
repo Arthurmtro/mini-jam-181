@@ -97,6 +97,7 @@ namespace BunnyCoffee
                 return;
             }
 
+            appliance.Reserve();
             Status = EmployeeStatus.MovingToAppliance;
             MoveToTarget(appliance.EmployeePosition.position);
         }
@@ -110,9 +111,14 @@ namespace BunnyCoffee
 
         public void StartMovingToCustomerToDeliver()
         {
+            if (appliance != null)
+            {
+                appliance.Free();
+                appliance = null;
+            }
+
             Status = EmployeeStatus.MovingToCustomerToDeliver;
             MoveToTarget(customer.BarPosition.Employee);
-            appliance.Free();
         }
 
         public void StartDelivering()
@@ -126,11 +132,6 @@ namespace BunnyCoffee
 
         public void UpdateController(float deltaTime, GameManager game)
         {
-            if (!IsActive)
-            {
-                return;
-            }
-
             switch (Status)
             {
                 case EmployeeStatus.Idle:

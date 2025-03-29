@@ -1,18 +1,16 @@
 using System;
 using System.Linq;
-using System.Threading;
-using System.Timers;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace BunnyCoffee
 {
     public class GameManager : MonoBehaviour
     {
         const int MaxAppliances = 4;
-        const int MaxEmployees = 1;
-        const int MaxCustomers = 10;
+        const int MaxEmployees = 10;
+        const int MaxCustomers = 40;
+        // seconds after the controllers are updated - to avoid too many irrelevant updates
+        const float processEvery = 0.1f;
 
         [Header("Resources")]
         [SerializeField] ApplianceTypeCollection applianceTypes;
@@ -28,7 +26,7 @@ namespace BunnyCoffee
         public Vector3 CustomerLeavePosition => customerInactivePosition.position;
         Transform employeesContainer;
         Transform customersContainer;
-        Vector3[] queuePositions;
+        QueuePosition[] queuePositions;
         BarPosition[] barPositions;
 
         [Header("Controllers")]
@@ -36,9 +34,9 @@ namespace BunnyCoffee
         TableController[] tableControllers;
 
         [SerializeField] Transform applianceControllersContainer;
-        ApplianceController[] applianceControllers;
+        ApplianceController[] appliances;
 
-        readonly Appliance[] appliances = new Appliance[MaxAppliances];
+        // readonly Appliance[] appliances = new Appliance[MaxAppliances];
         int nextApplianceIndex => Array.FindIndex(appliances, appliance => !appliance.IsActive);
         readonly EmployeeController[] employees = new EmployeeController[MaxEmployees];
         int nextEmployeeIndex => Array.FindIndex(employees, employee => !employee.IsActive);
@@ -47,24 +45,25 @@ namespace BunnyCoffee
         int lastCustomerIndex = 0;
 
         float timeToCustomer = 2f;
+        float accumulatedDelta = 0;
 
         void Start()
         {
             // Init positions
-            queuePositions = barPositionsContainer.GetComponentsInChildren<Transform>().Where(t => t != queuePositionsContainer).Select(t => t.position).ToArray();
+            queuePositions = queuePositionsContainer.GetComponentsInChildren<QueuePosition>().ToArray();
+            for (int i = 0; i < queuePositions.Length; i++)
+            {
+                queuePositions[i].Index = i;
+            }
+
             barPositions = barPositionsContainer.GetComponentsInChildren<BarPosition>().ToArray();
             tableControllers = tableControllersContainer.GetComponentsInChildren<TableController>().ToArray();
-            applianceControllers = applianceControllersContainer.GetComponentsInChildren<ApplianceController>().ToArray();
+            appliances = applianceControllersContainer.GetComponentsInChildren<ApplianceController>().ToArray();
 
             customersContainer = new GameObject("Customers").transform;
             customersContainer.SetParent(transform);
-            employeesContainer = new GameObject("Customers").transform;
+            employeesContainer = new GameObject("Employees").transform;
             employeesContainer.SetParent(transform);
-
-            for (int i = 0; i < MaxAppliances; i++)
-            {
-                appliances[i] = new Appliance();
-            }
 
             for (int i = 0; i < MaxEmployees; i++)
             {
@@ -85,39 +84,45 @@ namespace BunnyCoffee
                 customers[i] = newCustomer.GetComponent<CustomerController>();
             }
 
-            AddAppliance(applianceTypes.AtIndex(0), 0);
+            // AddAppliance(applianceTypes.AtIndex(0), 0);
+            AddEmployee();
+            AddEmployee();
+            AddEmployee();
+            AddEmployee();
             AddEmployee();
             // AddCustomer(productTypes.AtIndex(0).Id);
         }
 
         void Update()
         {
-            for (int i = 0; i < MaxEmployees; i++)
-            {
-                UpdateEmployee(i);
-            }
-
-            for (int i = 0; i < MaxCustomers; i++)
-            {
-                UpdateCustomer(i);
-            }
-
-            timeToCustomer = Mathf.Max(0, timeToCustomer - Time.deltaTime);
-            if (timeToCustomer == 0)
-            {
-                AddCustomer(productTypes.AtIndex(0).Id);
-            }
-        }
-
-        void AddAppliance(ApplianceType type, int level)
-        {
-            int nextIndex = nextApplianceIndex;
-            if (nextIndex >= appliances.Length)
+            accumulatedDelta += Time.deltaTime;
+            if (accumulatedDelta < processEvery)
             {
                 return;
             }
 
-            appliances[nextIndex].Activate(type, level);
+            for (int i = 0; i < appliances.Length; i++)
+            {
+                UpdateAppliance(i, accumulatedDelta);
+            }
+
+            for (int i = 0; i < MaxEmployees; i++)
+            {
+                UpdateEmployee(i, accumulatedDelta);
+            }
+
+            for (int i = 0; i < MaxCustomers; i++)
+            {
+                UpdateCustomer(i, accumulatedDelta);
+            }
+
+            timeToCustomer = Mathf.Max(0, timeToCustomer - accumulatedDelta);
+            if (timeToCustomer == 0)
+            {
+                AddCustomer(productTypes.AtIndex(0).Id);
+            }
+
+            accumulatedDelta = 0;
         }
 
         void AddEmployee()
@@ -139,34 +144,58 @@ namespace BunnyCoffee
                 return;
             }
 
-            BarPosition barPosition = FindFreeBarPosition();
-            if (barPosition == null)
+            if (IsQueueEmpty())
+            {
+                BarPosition barPosition = FindFreeBarPosition();
+                if (barPosition != null)
+                {
+                    nextCustomer.ActivateToBar(barPosition, productId);
+                    timeToCustomer = 2f;
+                    return;
+                }
+            }
+
+            if (!IsQueueReady())
             {
                 return;
             }
 
-            nextCustomer.ActivateToBar(barPosition, productId);
-            timeToCustomer = 2f;
+            QueuePosition queuePosition = FindFreeQueuePosition();
+            if (queuePosition != null)
+            {
+                nextCustomer.ActivateToQueue(queuePosition, productId);
+                timeToCustomer = 2f;
+            }
         }
 
-        void UpdateEmployee(int index)
+        void UpdateAppliance(int index, float timeDelta)
+        {
+            if (!appliances[index].IsActive)
+            {
+                // return;
+            }
+
+            appliances[index].UpdateController(timeDelta);
+        }
+
+        void UpdateEmployee(int index, float timeDelta)
         {
             if (!employees[index].IsActive)
             {
                 return;
             }
 
-            employees[index].UpdateController(Time.deltaTime, this);
+            employees[index].UpdateController(timeDelta, this);
         }
 
-        void UpdateCustomer(int index)
+        void UpdateCustomer(int index, float timeDelta)
         {
             if (!customers[index].IsActive)
             {
                 return;
             }
 
-            customers[index].UpdateController(Time.deltaTime, this);
+            customers[index].UpdateController(timeDelta, this);
         }
 
         public CustomerController FindCustomerWaiting()
@@ -179,6 +208,44 @@ namespace BunnyCoffee
             return Array.Find(barPositions, position => !position.IsBusy);
         }
 
+        public QueuePosition FindFreeQueuePosition()
+        {
+            return Array.Find(queuePositions, position => !position.IsBusy);
+        }
+
+        public QueuePosition FindNextQueuePosition(QueuePosition position)
+        {
+            if (position == null || position.Index == 0)
+            {
+                return null;
+            }
+
+            return queuePositions[position.Index - 1];
+        }
+
+        public bool IsQueueEmpty()
+        {
+            return Array.TrueForAll(queuePositions, position => !position.IsBusy);
+        }
+
+        public bool IsQueueReady()
+        {
+            bool foundFree = false;
+            for (int i = 0; i < queuePositions.Length; i++)
+            {
+                if (!queuePositions[i].IsBusy)
+                {
+                    foundFree = true;
+                }
+                else if (foundFree)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public TableController FindFreeTable()
         {
             return Array.Find(tableControllers, table => !table.IsBusy);
@@ -186,7 +253,7 @@ namespace BunnyCoffee
 
         public ApplianceController FindFreeAppliance()
         {
-            return Array.Find(applianceControllers, appliance => appliance.IsFree);
+            return Array.Find(appliances, appliance => appliance.IsFree);
         }
 
         CustomerController FindNextCustomer()

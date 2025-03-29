@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -18,7 +19,8 @@ namespace BunnyCoffee
         ReceivingOrder,
         WaitingTable,
         MovingToTable,
-        EnjoyingOrder,
+        ConsumingOrder,
+        ReviewingOrder,
         Leaving,
     }
 
@@ -28,16 +30,17 @@ namespace BunnyCoffee
         const float TimeToThinkOrder = 1;
         const float TimeToExplainOrder = 1;
         const float TimeToReceiveOrder = 1;
-        const float TimeToEnjoyOrder = 1;
+        const float TimeToEnjoyOrder = 5;
+        const float TimeToReviewOrder = 1;
 
         public bool IsActive { get; private set; }
         public CustomerStatus Status;
-        public bool NeedsTimerUpdate => Status == CustomerStatus.ThinkingOrder || Status == CustomerStatus.ExplainingOrder || Status == CustomerStatus.EnjoyingOrder;
         public bool IsAttended { get; private set; }
         public bool CanBeAttended => Status == CustomerStatus.WaitingEmployee && !IsAttended;
         public float RemainingTime { get; private set; }
         public bool TimeHasFinished => RemainingTime == 0;
         public BarPosition BarPosition { get; private set; }
+        public QueuePosition QueuePosition { get; private set; }
         Vector3 inactivePosition;
 
         public string ProductId { get; private set; }
@@ -70,14 +73,14 @@ namespace BunnyCoffee
             agent.isStopped = true;
         }
 
-        public void ActivateToQueue(Vector3 queuePosition, string productId)
+        public void ActivateToQueue(QueuePosition queuePosition, string productId)
         {
             ProductId = productId;
             Reset();
             IsActive = true;
             agent.isStopped = false;
             Status = CustomerStatus.MovingToQueue;
-            MoveToTarget(queuePosition);
+            StartMovingToQueue(queuePosition);
         }
 
         public void ActivateToBar(BarPosition barPosition, string productId)
@@ -87,9 +90,7 @@ namespace BunnyCoffee
             IsActive = true;
             Status = CustomerStatus.MovingToBar;
             agent.isStopped = false;
-            BarPosition = barPosition;
-            BarPosition.Reserve();
-            MoveToTarget(barPosition.Customer);
+            StartMovingToBar(barPosition);
         }
 
         public void Attend()
@@ -102,9 +103,42 @@ namespace BunnyCoffee
 
         // State init
 
-        public void StartMovingToBar()
+        public void StartMovingToQueue(QueuePosition queuePosition)
         {
+            if (QueuePosition != null)
+            {
+                QueuePosition.Free();
+                QueuePosition = null;
+            }
+
+            QueuePosition = queuePosition;
+            QueuePosition.Reserve();
+            Status = CustomerStatus.MovingToQueue;
+            MoveToTarget(queuePosition.CustomerPosition);
+        }
+
+        public void StartInQueue()
+        {
+            Status = CustomerStatus.InQueue;
+        }
+
+        public void StartMovingToBar(BarPosition barPosition)
+        {
+            if (QueuePosition != null)
+            {
+                QueuePosition.Free();
+                QueuePosition = null;
+            }
+            if (BarPosition != null)
+            {
+                BarPosition.Free();
+                BarPosition = null;
+            }
+
+            BarPosition = barPosition;
+            BarPosition.Reserve();
             Status = CustomerStatus.MovingToBar;
+            MoveToTarget(barPosition.Customer);
         }
 
         public void StartThinkingOrder()
@@ -155,10 +189,16 @@ namespace BunnyCoffee
             MoveToTarget(Table.CustomerPosition.position);
         }
 
-        public void StartEnjoyingOrder()
+        public void StartConsumingOrder()
         {
-            Status = CustomerStatus.EnjoyingOrder;
+            Status = CustomerStatus.ConsumingOrder;
             RemainingTime = TimeToEnjoyOrder;
+        }
+
+        public void StartReviewingOrder()
+        {
+            Status = CustomerStatus.ReviewingOrder;
+            RemainingTime = TimeToReviewOrder;
         }
 
         public void StartLeaving()
@@ -176,11 +216,6 @@ namespace BunnyCoffee
 
         public void UpdateController(float deltaTime, GameManager game)
         {
-            if (!IsActive)
-            {
-                return;
-            }
-
             switch (Status)
             {
                 case CustomerStatus.Idle:
@@ -190,7 +225,7 @@ namespace BunnyCoffee
                     UpdateWithStatusMovingToQueue(deltaTime);
                     break;
                 case CustomerStatus.InQueue:
-                    UpdateWithStatusInQueue(deltaTime);
+                    UpdateWithStatusInQueue(game);
                     break;
                 case CustomerStatus.MovingToBar:
                     UpdateWithStatusMovingToBar(deltaTime);
@@ -216,8 +251,11 @@ namespace BunnyCoffee
                 case CustomerStatus.MovingToTable:
                     UpdateWithStatusMovingToTable(deltaTime);
                     break;
-                case CustomerStatus.EnjoyingOrder:
-                    UpdateWithStatusEnjoyingOrder(deltaTime);
+                case CustomerStatus.ConsumingOrder:
+                    UpdateWithStatusConsumingOrder(deltaTime);
+                    break;
+                case CustomerStatus.ReviewingOrder:
+                    UpdateWithStatusReviewingOrder(deltaTime);
                     break;
                 case CustomerStatus.Leaving:
                     UpdateWithStatusLeaving();
@@ -233,13 +271,30 @@ namespace BunnyCoffee
         {
             if (HasReachedDestination)
             {
-                Status = CustomerStatus.InQueue;
+                StartInQueue();
             }
         }
 
-        public void UpdateWithStatusInQueue(float deltaTime)
+        public void UpdateWithStatusInQueue(GameManager game)
         {
-            // Logic for InQueue status
+            // Check next queue positions
+            QueuePosition nextQueuePosition = game.FindNextQueuePosition(QueuePosition);
+            if (nextQueuePosition != null)
+            {
+                if (!nextQueuePosition.IsBusy)
+                {
+                    StartMovingToQueue(nextQueuePosition);
+                }
+
+                return;
+            }
+
+            // Check if bar is free
+            BarPosition nextBarPosition = game.FindFreeBarPosition();
+            if (nextBarPosition != null && !nextBarPosition.IsBusy)
+            {
+                StartMovingToBar(nextBarPosition);
+            }
         }
 
         public void UpdateWithStatusMovingToBar(float deltaTime)
@@ -307,11 +362,22 @@ namespace BunnyCoffee
         {
             if (HasReachedDestination)
             {
-                StartEnjoyingOrder();
+                StartConsumingOrder();
             }
         }
 
-        public void UpdateWithStatusEnjoyingOrder(float deltaTime)
+        public void UpdateWithStatusConsumingOrder(float deltaTime)
+        {
+            if (RemainingTime == 0)
+            {
+                StartReviewingOrder();
+                return;
+            }
+
+            UpdateTimer(deltaTime);
+        }
+
+        public void UpdateWithStatusReviewingOrder(float deltaTime)
         {
             if (RemainingTime == 0)
             {

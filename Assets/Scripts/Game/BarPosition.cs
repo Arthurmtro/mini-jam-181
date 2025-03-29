@@ -30,13 +30,13 @@ namespace BunnyCoffee
             if (employeeTransform != null)
             {
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawSphere(Employee, 1.5f);
+                Gizmos.DrawSphere(Employee, 1f);
             }
 
             if (customerTransform != null)
             {
                 Gizmos.color = IsBusy ? Color.red : Color.yellow;
-                Gizmos.DrawSphere(Customer, 1.5f);
+                Gizmos.DrawSphere(Customer, 1f);
             }
         }
     }

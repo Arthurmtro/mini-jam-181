@@ -5,10 +5,16 @@ using UnityEngine;
 
 namespace BunnyCoffee
 {
+    public enum ApplianceStatus
+    {
+        Idle,
+        Preparing,
+        Finished,
+    }
 
     public class ApplianceController : MonoBehaviour
     {
-        const float TimeToIdle = 5.0f;
+        const float TimeToFinish = 1.0f;
 
         [Header("Position")]
         public Transform EmployeePosition;
@@ -19,7 +25,8 @@ namespace BunnyCoffee
         public ApplianceTypeLevel Level => Type.Levels[level];
 
         public ApplianceStatus Status { get; private set; }
-        public bool IsFree => Status == ApplianceStatus.Idle;
+        public bool IsBusy { get; private set; }
+        public bool IsFree => Status == ApplianceStatus.Idle && !IsBusy;
 
         public string ProductId;
         public float RemainingTime { get; private set; }
@@ -47,12 +54,25 @@ namespace BunnyCoffee
 
         public void Reserve()
         {
-            Status = ApplianceStatus.Reserved;
+            IsBusy = true;
+        }
+
+        public void Free()
+        {
+            IsBusy = false;
+        }
+
+        // start statuses
+
+        public void StartIdle()
+        {
+            Status = ApplianceStatus.Idle;
         }
 
         public void StartPreparing(string productId)
         {
             Status = ApplianceStatus.Preparing;
+            RemainingTime = 3f;
             // if (Status != ApplianceStatus.Reserved)
             // {
             //     Debug.LogError("Cannot start preparing: invalid status: " + Status);
@@ -71,35 +91,60 @@ namespace BunnyCoffee
             // Status = ApplianceStatus.Preparing;
         }
 
-        public void Free()
+        public void StartFinished()
         {
-            Status = ApplianceStatus.Idle;
+            Status = ApplianceStatus.Finished;
+            RemainingTime = TimeToFinish;
         }
 
         public void UpdateController(float deltaTime)
         {
-            if (!IsActive)
-            {
-                return;
-            }
 
-            RemainingTime = Mathf.Max(0, RemainingTime - deltaTime);
-            if (RemainingTime != 0)
+            switch (Status)
             {
-                return;
-            }
-
-            Status = Status switch
-            {
-                ApplianceStatus.Preparing => ApplianceStatus.Finished,
-                ApplianceStatus.Finished => ApplianceStatus.Idle,
-                _ => Status
-            };
-            if (Status == ApplianceStatus.Finished)
-            {
-                RemainingTime = TimeToIdle;
+                case ApplianceStatus.Idle:
+                    UpdateWithStatusIdle();
+                    break;
+                case ApplianceStatus.Preparing:
+                    UpdateWithStatusPreparing(deltaTime);
+                    break;
+                case ApplianceStatus.Finished:
+                    UpdateWithStatusFinished(deltaTime);
+                    break;
             }
         }
+
+        public void UpdateWithStatusIdle()
+        {
+        }
+
+        public void UpdateWithStatusPreparing(float deltaTime)
+        {
+            if (RemainingTime == 0)
+            {
+                StartFinished();
+                return;
+            }
+
+            UpdateTimer(deltaTime);
+        }
+
+        public void UpdateWithStatusFinished(float deltaTime)
+        {
+            if (RemainingTime == 0)
+            {
+                StartIdle();
+                return;
+            }
+
+            UpdateTimer(deltaTime);
+        }
+
+        void UpdateTimer(float deltaTime)
+        {
+            RemainingTime = Mathf.Max(0, RemainingTime - deltaTime);
+        }
+
 
         ApplianceTypeProduct FindProduct(string productId)
         {
@@ -113,11 +158,11 @@ namespace BunnyCoffee
                 return;
             }
 
-            Handles.Label(transform.position, $"AP: {Status}");
+            Handles.Label(transform.position + 1.25f * Vector3.up, Status.ToString());
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireCube(transform.position, 2f * Vector3.one);
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawSphere(EmployeePosition.position, 1.5f);
+            Gizmos.DrawWireCube(transform.position, 1.25f * Vector3.one);
+            Gizmos.color = !IsFree ? Color.red : Color.magenta;
+            Gizmos.DrawSphere(EmployeePosition.position, 1f);
         }
     }
 }

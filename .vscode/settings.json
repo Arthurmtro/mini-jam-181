@@ -56,5 +56,13 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Mini Jam 181.sln"
+    "[csharp]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "dotnet.codeLens.enableReferencesCodeLens": false,
+    "dotnet.defaultSolution": "mini-jam-181.sln",
+    "cSpell.words": [
+        "Behaviour"
+    ]
 }

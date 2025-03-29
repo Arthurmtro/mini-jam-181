@@ -2,16 +2,16 @@ using UnityEngine;
 
 namespace BunnyCoffee
 {
-    public enum EmployeeStatus
-    {
-        Idle,
-        Waiting,
-        MovingToCustomer,
-        AskingCustomer,
-        MovingToAppliance,
-        Preparing,
-        Delivering,
-    }
+    // public enum EmployeeStatus
+    // {
+    //     Idle,
+    //     Waiting,
+    //     MovingToCustomer,
+    //     AskingCustomer,
+    //     MovingToAppliance,
+    //     Preparing,
+    //     Delivering,
+    // }
 
     public struct Employee
     {

@@ -17,18 +17,18 @@ namespace BunnyCoffee
         }
     }
 
-    public enum CustomerStatus
-    {
-        InQueue,
-        MovingToBar,
-        ThinkingOrder,
-        WaitingEmployee,
-        ExplainingOrder,
-        WaitingOrder,
-        MovingToTable,
-        EnjoyingOrder,
-        Leaving,
-    }
+    // public enum CustomerStatus
+    // {
+    //     InQueue,
+    //     MovingToBar,
+    //     ThinkingOrder,
+    //     WaitingEmployee,
+    //     ExplainingOrder,
+    //     WaitingOrder,
+    //     MovingToTable,
+    //     EnjoyingOrder,
+    //     Leaving,
+    // }
 
     [Serializable]
     public struct Customer

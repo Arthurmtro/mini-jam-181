@@ -18,4 +18,4 @@ MonoBehaviour:
     MinWaitTime: 10
     MaxWaitTime: 20
     MinQuality: 0
-    Controller: {fileID: 0}
+    Controller: {fileID: 6866242554866685499, guid: f4cbf99e0e8234933b3db7f2253356e7, type: 3}

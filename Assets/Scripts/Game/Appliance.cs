@@ -1,7 +1,5 @@
 using System;
 using System.Linq;
-using System.Resources;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 

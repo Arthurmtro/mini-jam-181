@@ -17,7 +17,7 @@ namespace BunnyCoffee
         public int MaxWaitTime;
 
         public Product.Quality MinQuality;
-        public GameObject Controller;
+        public CustomerController Controller;
     }
 
 #if UNITY_EDITOR
@@ -32,4 +32,5 @@ namespace BunnyCoffee
         public CustomerType[] All => types;
         public CustomerType AtIndex(int index) => types[index];
     }
+
 }

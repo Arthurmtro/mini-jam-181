@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
@@ -16,32 +17,40 @@ namespace BunnyCoffee
     {
         const float TimeToFinish = 1.0f;
 
+        [Header("Resources")]
+        [SerializeField] ResourceManager resources;
+
         [Header("Position")]
         public Transform EmployeePosition;
 
+        public string TypeId;
+        private ApplianceType type;
+        public int Level;
+        private ApplianceTypeLevel typeLevel => type.Levels[Level];
+
         public bool IsActive { get; private set; }
-        public ApplianceType Type;
-        private int level;
-        public ApplianceTypeLevel Level => Type.Levels[level];
 
         public ApplianceStatus Status { get; private set; }
         public bool IsBusy { get; private set; }
-        public bool IsFree => Status == ApplianceStatus.Idle && !IsBusy;
+        public bool IsFree => IsActive && Status == ApplianceStatus.Idle && !IsBusy;
 
-        public string ProductId;
         public float RemainingTime { get; private set; }
+
+        void Awake()
+        {
+            type = resources.ApplianceTypes.ById(TypeId);
+        }
 
         public void Reset()
         {
             Status = ApplianceStatus.Idle;
-            ProductId = "";
             RemainingTime = 0;
         }
 
-        public void Activate(ApplianceType type, int level)
+        public void Activate(int level = 0)
         {
-            Type = type;
-            this.level = level;
+            Debug.Log(type);
+            Level = Math.Min(type.Levels.Length - 1, level);
             Reset();
             IsActive = true;
         }
@@ -62,6 +71,16 @@ namespace BunnyCoffee
             IsBusy = false;
         }
 
+        public bool CanPrepare(string productId)
+        {
+            if (!IsFree)
+            {
+                return false;
+            }
+
+            return typeLevel.Products.Any(product => product.ProductId == productId);
+        }
+
         // start statuses
 
         public void StartIdle()
@@ -69,26 +88,13 @@ namespace BunnyCoffee
             Status = ApplianceStatus.Idle;
         }
 
-        public void StartPreparing(string productId)
+        public float StartPreparing(string productId)
         {
+            ApplianceTypeProduct levelProduct = FindProduct(productId);
             Status = ApplianceStatus.Preparing;
-            RemainingTime = 3f;
-            // if (Status != ApplianceStatus.Reserved)
-            // {
-            //     Debug.LogError("Cannot start preparing: invalid status: " + Status);
-            //     return;
-            // }
+            RemainingTime = levelProduct.Duration;
 
-            // product = FindProduct(productId);
-            // if (productOptional is not ApplianceTypeProduct product)
-            // {
-            //     Debug.LogError("Product not found for ID: " + productId);
-            //     return;
-            // }
-
-            // ProductId = productId;
-            // RemainingTime = product.Duration;
-            // Status = ApplianceStatus.Preparing;
+            return levelProduct.Duration;
         }
 
         public void StartFinished()
@@ -145,10 +151,9 @@ namespace BunnyCoffee
             RemainingTime = Mathf.Max(0, RemainingTime - deltaTime);
         }
 
-
         ApplianceTypeProduct FindProduct(string productId)
         {
-            return Array.Find(Level.Products, product => product.ProductId == productId);
+            return Array.Find(typeLevel.Products, product => product.ProductId == productId);
         }
 
         void OnDrawGizmos()
@@ -159,6 +164,7 @@ namespace BunnyCoffee
             }
 
             Handles.Label(transform.position + 1.25f * Vector3.up, Status.ToString());
+            Handles.Label(transform.position - 1.25f * Vector3.up, type.Name);
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireCube(transform.position, 1.25f * Vector3.one);
             Gizmos.color = !IsFree ? Color.red : Color.magenta;

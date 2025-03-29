@@ -1,22 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace BunnyCoffee
 {
     public class GameManager : MonoBehaviour
     {
-        const int MaxAppliances = 4;
         const int MaxEmployees = 4;
         const int MaxCustomers = 40;
         // seconds after the controllers are updated - to avoid too many irrelevant updates
         const float processEvery = 0.1f;
 
         [Header("Resources")]
-        [SerializeField] ApplianceTypeCollection applianceTypes;
-        [SerializeField] ProductCollection productTypes;
-        [SerializeField] EmployeeController employeeController;
-        [SerializeField] CustomerTypeCollection customerTypes;
+        [SerializeField] ResourceManager resources;
+        Dictionary<string, Product> products = new();
 
         [Header("Positions")]
         [SerializeField] Transform employeesIdlePositionsContainer;
@@ -31,13 +30,13 @@ namespace BunnyCoffee
         BarPosition[] barPositions;
 
         [Header("Controllers")]
+        [SerializeField] EmployeeController employeeController;
         [SerializeField] Transform tableControllersContainer;
         TableController[] tableControllers;
 
         [SerializeField] Transform applianceControllersContainer;
         ApplianceController[] appliances;
 
-        // readonly Appliance[] appliances = new Appliance[MaxAppliances];
         int nextApplianceIndex => Array.FindIndex(appliances, appliance => !appliance.IsActive);
         readonly EmployeeController[] employees = new EmployeeController[MaxEmployees];
         int nextEmployeeIndex => Array.FindIndex(employees, employee => !employee.IsActive);
@@ -79,7 +78,7 @@ namespace BunnyCoffee
 
             for (int i = 0; i < MaxCustomers; i++)
             {
-                CustomerType randomCustomerType = customerTypes.AtIndex(UnityEngine.Random.Range(0, customerTypes.Count));
+                CustomerType randomCustomerType = resources.CustomerTypes.AtIndex(UnityEngine.Random.Range(0, resources.CustomerTypes.Count));
                 GameObject newCustomer = Instantiate(randomCustomerType.Controller.gameObject, customersContainer);
                 newCustomer.name = $"[{i}] Customer (Type={randomCustomerType.Name})";
                 newCustomer.transform.position = GetInactivePosition(customerInactivePosition.position, i);
@@ -87,10 +86,13 @@ namespace BunnyCoffee
                 customers[i] = newCustomer.GetComponent<CustomerController>();
             }
 
+            AddAppliance();
+            AddAppliance(5);
+            AddAppliance(5);
             AddEmployee();
             AddEmployee();
-            // AddEmployee();
-            // AddEmployee();
+
+            CalculateAllProducts();
         }
 
         void Update()
@@ -119,16 +121,27 @@ namespace BunnyCoffee
             timeToCustomer = Mathf.Max(0, timeToCustomer - accumulatedDelta);
             if (timeToCustomer == 0)
             {
-                AddCustomer(productTypes.AtIndex(0).Id);
+                AddCustomer(resources.ProductTypes.AtIndex(0).Id);
             }
 
             accumulatedDelta = 0;
         }
 
+        void AddAppliance(int level = 0)
+        {
+            int nextIndex = nextApplianceIndex;
+            if (nextIndex < 0 || nextIndex >= appliances.Length)
+            {
+                return;
+            }
+
+            appliances[nextIndex].Activate(level);
+        }
+
         void AddEmployee()
         {
             int nextIndex = nextEmployeeIndex;
-            if (nextIndex >= employees.Length)
+            if (nextIndex < 0 || nextIndex >= employees.Length)
             {
                 return;
             }
@@ -149,7 +162,7 @@ namespace BunnyCoffee
                 BarPosition barPosition = FindFreeBarPosition();
                 if (barPosition != null)
                 {
-                    nextCustomer.ActivateToBar(barPosition, productId);
+                    nextCustomer.ActivateToBar(barPosition);
                     timeToCustomer = 2f;
                     return;
                 }
@@ -163,7 +176,7 @@ namespace BunnyCoffee
             QueuePosition queuePosition = FindFreeQueuePosition();
             if (queuePosition != null)
             {
-                nextCustomer.ActivateToQueue(queuePosition, productId);
+                nextCustomer.ActivateToQueue(queuePosition);
                 timeToCustomer = 2f;
             }
         }
@@ -172,7 +185,7 @@ namespace BunnyCoffee
         {
             if (!appliances[index].IsActive)
             {
-                // return;
+                return;
             }
 
             appliances[index].UpdateController(timeDelta);
@@ -228,6 +241,11 @@ namespace BunnyCoffee
             return queuePositions[position.Index - 1];
         }
 
+        public Product? GetRandomProduct()
+        {
+            return products.Values.ElementAt(UnityEngine.Random.Range(0, products.Count));
+        }
+
         public bool IsQueueEmpty()
         {
             return Array.TrueForAll(queuePositions, position => !position.IsBusy);
@@ -256,9 +274,9 @@ namespace BunnyCoffee
             return Array.Find(tableControllers, table => !table.IsBusy);
         }
 
-        public ApplianceController FindFreeAppliance()
+        public ApplianceController FindFreeAppliance(string productId)
         {
-            return Array.Find(appliances, appliance => appliance.IsFree);
+            return Array.Find(appliances, appliance => appliance.CanPrepare(productId));
         }
 
         CustomerController FindNextCustomer()
@@ -286,6 +304,26 @@ namespace BunnyCoffee
 
             return new Vector3(basePosition.x + x * distance, basePosition.y + y * distance, basePosition.z);
         }
-    }
 
+        void CalculateAllProducts()
+        {
+            products = new Dictionary<string, Product>();
+            foreach (var appliance in appliances)
+            {
+                ApplianceType type = resources.ApplianceTypes.ById(appliance.TypeId);
+                foreach (ApplianceTypeLevel level in type.Levels)
+                {
+                    foreach (ApplianceTypeProduct levelProduct in level.Products)
+                    {
+                        Product product = resources.ProductTypes.ById(levelProduct.ProductId);
+
+                        if (!products.ContainsKey(product.Id))
+                        {
+                            products.Add(product.Id, product);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -43,6 +43,7 @@ namespace BunnyCoffee
         public int Count => types.Length;
         public ApplianceType[] All => types;
         public ApplianceType AtIndex(int index) => types[index];
+        public ApplianceType ById(string id) => Array.Find(types, type => type.Id == id);
     }
 
     #endregion

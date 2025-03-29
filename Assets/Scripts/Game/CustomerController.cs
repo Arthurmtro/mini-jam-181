@@ -43,7 +43,7 @@ namespace BunnyCoffee
         public QueuePosition QueuePosition { get; private set; }
         Vector3 inactivePosition;
 
-        public string ProductId { get; private set; }
+        Product? product;
         public TableController Table { get; private set; }
 
         NavMeshAgent agent;
@@ -73,9 +73,8 @@ namespace BunnyCoffee
             agent.isStopped = true;
         }
 
-        public void ActivateToQueue(QueuePosition queuePosition, string productId)
+        public void ActivateToQueue(QueuePosition queuePosition)
         {
-            ProductId = productId;
             Reset();
             IsActive = true;
             agent.isStopped = false;
@@ -83,9 +82,8 @@ namespace BunnyCoffee
             StartMovingToQueue(queuePosition);
         }
 
-        public void ActivateToBar(BarPosition barPosition, string productId)
+        public void ActivateToBar(BarPosition barPosition)
         {
-            ProductId = productId;
             Reset();
             IsActive = true;
             Status = CustomerStatus.MovingToBar;
@@ -152,8 +150,9 @@ namespace BunnyCoffee
             Status = CustomerStatus.WaitingEmployee;
         }
 
-        public void StartExplainingOrder()
+        public void StartExplainingOrder(Product product)
         {
+            this.product = product;
             Status = CustomerStatus.ExplainingOrder;
             RemainingTime = TimeToExplainOrder;
         }
@@ -411,6 +410,11 @@ namespace BunnyCoffee
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(transform.position, 0.5f);
             Handles.Label(transform.position + 1f * Vector3.up, Status.ToString());
+
+            if (product.HasValue)
+            {
+                Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name);
+            }
         }
     }
 }

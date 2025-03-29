@@ -16,9 +16,22 @@ MonoBehaviour:
   - Id: coffee-machine-1
     Name: Cofee Machine
     Levels:
-    - Name: Basic
+    - Name: Level 1
       Products:
-      - ProductId: coffee-1
+      - ProductId: coffee-latte
         MinQuality: 0
         MaxQuality: 1
         Duration: 5
+      - ProductId: coffee-americano
+        MinQuality: 0
+        MaxQuality: 1
+        Duration: 4
+  - Id: bakery
+    Name: Bakery
+    Levels:
+    - Name: Level 1
+      Products:
+      - ProductId: bakery-croissant
+        MinQuality: 0
+        MaxQuality: 1
+        Duration: 2

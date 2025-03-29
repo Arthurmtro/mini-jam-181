@@ -1891,12 +1891,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2900f5d8ba3a7483a805f3cb601204f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resources: {fileID: 1443523966}
   EmployeePosition: {fileID: 464542635}
-  Type:
-    Id: 
-    Name: 
-    Levels: []
-  ProductId: 
+  TypeId: bakery
+  Level: 0
 --- !u!1 &1196933378
 GameObject:
   m_ObjectHideFlags: 0
@@ -2383,6 +2381,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1385170621}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1443523965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1443523967}
+  - component: {fileID: 1443523966}
+  m_Layer: 0
+  m_Name: Resources
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1443523966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1443523965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77c52903f17b6461bb3a516b48487e17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  applianceTypes: {fileID: 11400000, guid: 4d3cde719305e4c629b1ce83c7124288, type: 2}
+  productTypes: {fileID: 11400000, guid: ee004bb8679204539806262db13f3680, type: 2}
+  customerTypes: {fileID: 11400000, guid: 8e267b6314f334fab9b226db1c01dd58, type: 2}
+--- !u!4 &1443523967
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1443523965}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -32.53006, y: -6.8690186, z: -0.37415937}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1479242983
 GameObject:
   m_ObjectHideFlags: 0
@@ -2742,12 +2787,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2900f5d8ba3a7483a805f3cb601204f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resources: {fileID: 1443523966}
   EmployeePosition: {fileID: 1689876558}
-  Type:
-    Id: 
-    Name: 
-    Levels: []
-  ProductId: 
+  TypeId: coffee-machine-1
+  Level: 0
 --- !u!1 &1679134155 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -2253911629886400664, guid: 71a6379fe7d764f32a02697a484d96b3, type: 3}
@@ -3272,15 +3315,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bb37ff9f93074276a68962cd359bb65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  applianceTypes: {fileID: 11400000, guid: 4d3cde719305e4c629b1ce83c7124288, type: 2}
-  productTypes: {fileID: 11400000, guid: ee004bb8679204539806262db13f3680, type: 2}
-  employeeController: {fileID: 5591161835251723639, guid: fe8587afd57e541f9bb0b609e5827217, type: 3}
-  customerTypes: {fileID: 11400000, guid: 8e267b6314f334fab9b226db1c01dd58, type: 2}
+  resources: {fileID: 1443523966}
   employeesIdlePositionsContainer: {fileID: 146459548}
   employeeInactivePosition: {fileID: 457982590}
   customerInactivePosition: {fileID: 1196933379}
   queuePositionsContainer: {fileID: 161417840}
   barPositionsContainer: {fileID: 1417189183}
+  employeeController: {fileID: 5591161835251723639, guid: fe8587afd57e541f9bb0b609e5827217, type: 3}
   tableControllersContainer: {fileID: 694662792}
   applianceControllersContainer: {fileID: 343269154}
 --- !u!4 &1869471119
@@ -3640,12 +3681,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2900f5d8ba3a7483a805f3cb601204f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resources: {fileID: 1443523966}
   EmployeePosition: {fileID: 1680783708}
-  Type:
-    Id: 
-    Name: 
-    Levels: []
-  ProductId: 
+  TypeId: coffee-machine-1
+  Level: 0
 --- !u!1 &2076565199
 GameObject:
   m_ObjectHideFlags: 0
@@ -3809,3 +3848,4 @@ SceneRoots:
   - {fileID: 1991655609}
   - {fileID: 2076565200}
   - {fileID: 1908552893}
+  - {fileID: 1443523967}

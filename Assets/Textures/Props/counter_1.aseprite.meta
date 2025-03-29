@@ -125,7 +125,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: counter_1
     originalName: 
-    pivot: {x: 0.5, y: 0.7619048}
+    pivot: {x: 0.5, y: 0.68085104}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -134,7 +134,7 @@ ScriptedImporter:
       x: 4
       y: 4
       width: 64
-      height: 42
+      height: 47
     spriteID: 9422145461f78417cb0e15d6604db8e4
     spriteBone: []
     spriteOutline: []
@@ -160,7 +160,7 @@ ScriptedImporter:
         x: 0
         y: 0
         width: 64
-        height: 42
+        height: 47
       spriteId: 9422145461f78417cb0e15d6604db8e4
     linkedCells: []
     parentIndex: -1

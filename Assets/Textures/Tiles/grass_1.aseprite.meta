@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2d89200681b4749658292d02c9a92b41
+guid: fdb34b0374ea84c85a2460ae818e32e4
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -98,7 +98,7 @@ ScriptedImporter:
     addSortingGroup: 1
     addShadowCasters: 0
   importFileNodeState: 1
-  platformSettingsDirtyTick: 638788626341095720
+  platformSettingsDirtyTick: 638788626341100270
   textureAssetName: 
   singleSpriteImportData:
   - name: 
@@ -123,7 +123,7 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: wall_1
+  - name: grass_1
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 9
@@ -135,7 +135,7 @@ ScriptedImporter:
       y: 4
       width: 32
       height: 32
-    spriteID: 89d6761d240df425bbe662ee20607c4d
+    spriteID: 540ce76b2b29d41bb9552baf04df0992
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -147,13 +147,13 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: -1506460610
-    name: wall_1
+    guid: -1868476120
+    name: grass_1
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: wall_1
+    - name: grass_1
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -161,7 +161,7 @@ ScriptedImporter:
         y: 0
         width: 32
         height: 32
-      spriteId: 89d6761d240df425bbe662ee20607c4d
+      spriteId: 540ce76b2b29d41bb9552baf04df0992
     linkedCells: []
     parentIndex: -1
   platformSettings:

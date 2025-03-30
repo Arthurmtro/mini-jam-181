@@ -81,7 +81,7 @@ ScriptedImporter:
     mosaicPadding: 4
     spritePadding: 0
     generateModelPrefab: 1
-    generateAnimationClips: 1
+    generateAnimationClips: 0
     addSortingGroup: 1
     addShadowCasters: 0
   asepriteImporterSettings:
@@ -94,11 +94,11 @@ ScriptedImporter:
     mosaicPadding: 4
     spritePadding: 0
     generateModelPrefab: 1
-    generateAnimationClips: 1
+    generateAnimationClips: 0
     addSortingGroup: 1
     addShadowCasters: 0
   importFileNodeState: 1
-  platformSettingsDirtyTick: 638788660552201900
+  platformSettingsDirtyTick: 638789332392327220
   textureAssetName: 
   singleSpriteImportData:
   - name: 
@@ -123,11 +123,11 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: Layer 1
+  - name: Panel
     originalName: 
     pivot: {x: 0.5, y: -0.03125}
     alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 7, y: 7, z: 7, w: 7}
     customData: 
     rect:
       serializedVersion: 2

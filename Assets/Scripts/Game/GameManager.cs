@@ -15,7 +15,7 @@ namespace BunnyCoffee
 {
     public class GameManager : MonoBehaviour
     {
-        const int MaxEmployees = 4;
+        const int MaxEmployees = 3;
         const int MaxCustomers = 40;
         // seconds after the controllers are updated - to avoid too many irrelevant updates
         const float processEvery = 0.1f;
@@ -62,7 +62,7 @@ namespace BunnyCoffee
         readonly CustomerController[] customers = new CustomerController[MaxCustomers];
         int lastCustomerIndex = 0;
 
-        float timeToCustomer = 15f;
+        float timeToCustomer = 10f;
         float accumulatedDelta = 0;
 
         void Start()
@@ -191,7 +191,7 @@ namespace BunnyCoffee
                 if (barPosition != null)
                 {
                     nextCustomer.ActivateToBar(barPosition);
-                    timeToCustomer = 2f;
+                    timeToCustomer = 10f;
                     return;
                 }
             }
@@ -205,7 +205,7 @@ namespace BunnyCoffee
             if (queuePosition != null)
             {
                 nextCustomer.ActivateToQueue(queuePosition);
-                timeToCustomer = 2f;
+                timeToCustomer = 10f;
             }
         }
 

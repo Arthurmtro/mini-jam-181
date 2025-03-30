@@ -21,8 +21,10 @@ namespace BunnyCoffee
     [RequireComponent(typeof(NavMeshAgent))]
     public class EmployeeController : MonoBehaviour
     {
-        const float TimeToAskCustomer = 1;
-        const float TimeToDeliver = 1;
+        [Header("Params")]
+        [SerializeField] float TimeToAskCustomer = 2;
+        [SerializeField] float TimeToDeliver = 1;
+        [SerializeField] Animator animator;
 
         [SerializeField] int price;
         public int Price => price;
@@ -71,6 +73,7 @@ namespace BunnyCoffee
         {
             Status = EmployeeStatus.Idle;
             customer = null;
+            SetWalking(false);
         }
 
         public void StartMovingToCustomer()
@@ -82,6 +85,7 @@ namespace BunnyCoffee
                 idlePosition.Free();
                 idlePosition = null;
             }
+            SetWalking(true);
         }
 
         public void StartAskingCustomer(GameManager game)
@@ -94,6 +98,7 @@ namespace BunnyCoffee
             {
                 customer.StartExplainingOrder(product.Value);
             }
+            SetWalking(false);
         }
 
         public void StarWaitingForAppliance()
@@ -111,6 +116,7 @@ namespace BunnyCoffee
             appliance.Reserve();
             Status = EmployeeStatus.MovingToAppliance;
             MoveToTarget(appliance.EmployeePosition.position);
+            SetWalking(true);
         }
 
         public void StartPreparing()
@@ -119,9 +125,9 @@ namespace BunnyCoffee
 
             if (product.HasValue)
             {
-
                 RemainingTime = appliance.StartPreparing(product.Value.Id);
             }
+            SetWalking(false);
         }
 
         public void StartMovingToCustomerToDeliver()
@@ -134,6 +140,7 @@ namespace BunnyCoffee
 
             Status = EmployeeStatus.MovingToCustomerToDeliver;
             MoveToTarget(customer.BarPosition.EmployeePosition);
+            SetWalking(true);
         }
 
         public void StartDelivering()
@@ -141,6 +148,7 @@ namespace BunnyCoffee
             Status = EmployeeStatus.Delivering;
             RemainingTime = TimeToDeliver;
             customer.StartReceivingOrder();
+            SetWalking(false);
         }
 
         public void StartWaitingIdlePosition(GameManager game)
@@ -152,6 +160,7 @@ namespace BunnyCoffee
 
             product = null;
             Status = EmployeeStatus.WaitingIdlePosition;
+            SetWalking(true);
         }
 
         public void StartMovingToIdle(EmployeeIdlePosition position)
@@ -160,6 +169,7 @@ namespace BunnyCoffee
             idlePosition = position;
             idlePosition.Reserve();
             MoveToTarget(idlePosition.EmployeePosition);
+            SetWalking(true);
         }
 
         // update by status
@@ -318,6 +328,11 @@ namespace BunnyCoffee
             agent.destination = target;
         }
 
+        void SetWalking(bool value)
+        {
+            animator.SetBool("IsWalking", value);
+        }
+
         void UpdateTimer(float deltaTime)
         {
             RemainingTime = Mathf.Max(0, RemainingTime - deltaTime);
@@ -326,7 +341,7 @@ namespace BunnyCoffee
         void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawSphere(transform.position, 0.5f);
+            Gizmos.DrawSphere(transform.position, 0.25f);
             GUIStyle centeredStyle = new GUIStyle(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleCenter

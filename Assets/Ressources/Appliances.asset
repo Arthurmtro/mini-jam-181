@@ -39,6 +39,10 @@ MonoBehaviour:
         MinQuality: 1
         MaxQuality: 2
         Duration: 3
+      - ProductId: coffee-expensive
+        MinQuality: 1
+        MaxQuality: 2
+        Duration: 4
   - Id: bakery
     Name: Bakery
     Price: 150

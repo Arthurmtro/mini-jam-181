@@ -27,11 +27,13 @@ namespace BunnyCoffee
     [RequireComponent(typeof(NavMeshAgent))]
     public class CustomerController : MonoBehaviour
     {
-        const float TimeToThinkOrder = 1;
-        const float TimeToExplainOrder = 1;
-        const float TimeToReceiveOrder = 1;
-        const float TimeToEnjoyOrder = 15;
-        const float TimeToReviewOrder = 2;
+        [Header("Params")]
+        float TimeToThinkOrder = 0.1f;
+        [SerializeField] float TimeToExplainOrder = 2;
+        [SerializeField] float TimeToReceiveOrder = 1;
+        [SerializeField] float TimeToEnjoyOrder = 15;
+        [SerializeField] float TimeToReviewOrder = 2;
+        [SerializeField] Sprite spriteThinking;
 
         public bool IsActive { get; private set; }
         public CustomerStatus Status;
@@ -150,12 +152,14 @@ namespace BunnyCoffee
             Status = CustomerStatus.ThinkingOrder;
             RemainingTime = TimeToThinkOrder;
             animations.SetValues(false, false);
+            // animations.ShowBubble(BubbleType.Thinking);
         }
 
         public void StartWaitingEmployee()
         {
             Status = CustomerStatus.WaitingEmployee;
             animations.SetValues(false, false);
+            animations.HideBubble();
         }
 
         public void StartExplainingOrder(Product product)
@@ -164,12 +168,22 @@ namespace BunnyCoffee
             Status = CustomerStatus.ExplainingOrder;
             RemainingTime = TimeToExplainOrder;
             animations.SetValues(false, false);
+
+            if (product.Id == "coffee-latte")
+            {
+                animations.ShowBubble(BubbleType.Coffee1);
+            }
+            else
+            {
+                animations.ShowBubble(BubbleType.Coffee2);
+            }
         }
 
         public void StartWaitingOrder()
         {
             Status = CustomerStatus.WaitingOrder;
             animations.SetValues(false, false);
+            animations.HideBubble();
         }
 
         public void StartReceivingOrder()
@@ -177,12 +191,14 @@ namespace BunnyCoffee
             Status = CustomerStatus.ReceivingOrder;
             RemainingTime = TimeToReceiveOrder;
             animations.SetValues(false, false);
+            animations.ShowBubble(BubbleType.Coin);
         }
 
         public void StartWaitingTable()
         {
             Status = CustomerStatus.WaitingTable;
             animations.SetValues(false, false);
+            animations.HideBubble();
         }
 
         public void StartMovingToTable()
@@ -199,6 +215,7 @@ namespace BunnyCoffee
             Status = CustomerStatus.MovingToTable;
             MoveToTarget(Table.CustomerPosition.position);
             animations.SetValues(true, false);
+            animations.HideBubble();
         }
 
         public void StartConsumingOrder()
@@ -206,6 +223,7 @@ namespace BunnyCoffee
             Status = CustomerStatus.ConsumingOrder;
             RemainingTime = TimeToEnjoyOrder;
             animations.SetValues(false, true);
+            animations.HideBubble();
         }
 
         public void StartReviewingOrder()
@@ -213,6 +231,7 @@ namespace BunnyCoffee
             Status = CustomerStatus.ReviewingOrder;
             RemainingTime = TimeToReviewOrder;
             animations.SetValues(false, false);
+            animations.ShowBubble(BubbleType.Happy);
         }
 
         public void StartLeaving()
@@ -225,6 +244,7 @@ namespace BunnyCoffee
             Status = CustomerStatus.Leaving;
             MoveToTarget(inactivePosition);
             animations.SetValues(true, false);
+            animations.HideBubble();
         }
 
         // update by status

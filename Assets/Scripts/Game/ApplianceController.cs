@@ -20,6 +20,10 @@ namespace BunnyCoffee
         [Header("Resources")]
         [SerializeField] ResourceManager resources;
 
+        [Header("View")]
+        [SerializeField] Transform view;
+        [SerializeField] ParticleSystem particles;
+
         [Header("Position")]
         public Transform EmployeePosition;
 
@@ -46,6 +50,11 @@ namespace BunnyCoffee
             type = resources.ApplianceTypes.ById(TypeId);
         }
 
+        void Start()
+        {
+            view.gameObject.SetActive(false);
+        }
+
         public void Reset()
         {
             Status = ApplianceStatus.Idle;
@@ -57,12 +66,14 @@ namespace BunnyCoffee
             Level = Math.Min(type.Levels.Length - 1, level);
             Reset();
             IsActive = true;
+            view.gameObject.SetActive(true);
         }
 
         public void Deactivate()
         {
             Reset();
             IsActive = false;
+            view.gameObject.SetActive(false);
         }
 
         public void Reserve()
@@ -107,6 +118,7 @@ namespace BunnyCoffee
             ApplianceTypeProduct levelProduct = FindProduct(productId);
             Status = ApplianceStatus.Preparing;
             RemainingTime = levelProduct.Duration;
+            particles.Play();
 
             return levelProduct.Duration;
         }
@@ -115,6 +127,7 @@ namespace BunnyCoffee
         {
             Status = ApplianceStatus.Finished;
             RemainingTime = TimeToFinish;
+            particles.Stop();
         }
 
         public void UpdateController(float deltaTime)

@@ -38,7 +38,7 @@ namespace BunnyCoffee
         BarPosition[] barPositions;
 
         [Header("Controllers")]
-        [SerializeField] EmployeeController employeeController;
+        [SerializeField] EmployeeController[] employeeControllers;
         [SerializeField] Transform tablesContainer;
         TableController[] tableControllers;
         [SerializeField] UIController ui;
@@ -93,7 +93,7 @@ namespace BunnyCoffee
 
             for (int i = 0; i < MaxEmployees; i++)
             {
-                GameObject newEmployee = Instantiate(employeeController.gameObject, employeesContainer);
+                GameObject newEmployee = Instantiate(employeeControllers[i % employeeControllers.Length].gameObject, employeesContainer);
                 newEmployee.name = $"[{i}] Employee";
                 EmployeeIdlePosition employeeIdlePosition = employeeIdlePositions[i % employeeIdlePositions.Length];
                 newEmployee.transform.position = GetInactivePosition(employeeInactivePosition.position, i);
@@ -330,8 +330,15 @@ namespace BunnyCoffee
         }
 
         public TableController FindFreeTable()
+
         {
-            return Array.Find(tableControllers, table => !table.IsBusy);
+            var freeTables = tableControllers.Where(table => !table.IsBusy).ToArray();
+            if (freeTables.Length == 0)
+            {
+                return null;
+            }
+
+            return freeTables[UnityEngine.Random.Range(0, freeTables.Length)];
         }
 
         public ApplianceController FindFreeAppliance(string productId)
@@ -459,8 +466,10 @@ namespace BunnyCoffee
                 }
 
                 ApplianceType type = resources.ApplianceTypes.ById(appliance.TypeId);
-                foreach (ApplianceTypeLevel level in type.Levels)
+                for (int i = 0; i < type.Levels.Length && i <= appliance.Level; i++)
                 {
+                    ApplianceTypeLevel level = type.Levels[i];
+
                     foreach (ApplianceTypeProduct levelProduct in level.Products)
                     {
                         Product product = resources.ProductTypes.ById(levelProduct.ProductId);

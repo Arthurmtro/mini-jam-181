@@ -61,7 +61,7 @@
         "editor.defaultFormatter": "ms-dotnettools.csharp"
     },
     "dotnet.codeLens.enableReferencesCodeLens": false,
-    "dotnet.defaultSolution": "Mini Jam 181.sln",
+    "dotnet.defaultSolution": "mini-jam-181.sln",
     "cSpell.words": [
         "Behaviour"
     ]

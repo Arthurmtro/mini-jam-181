@@ -2,10 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
-using Unity.VisualScripting;
-
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -19,6 +15,9 @@ namespace BunnyCoffee
         const int MaxCustomers = 40;
         // seconds after the controllers are updated - to avoid too many irrelevant updates
         const float processEvery = 0.1f;
+
+        [Header("State")]
+        [SerializeField] bool IsActive = false;
 
         [Header("Resources")]
         [SerializeField] ResourceManager resources;
@@ -41,12 +40,16 @@ namespace BunnyCoffee
         [SerializeField] EmployeeController employeeController;
         [SerializeField] Transform tablesContainer;
         TableController[] tableControllers;
+        [SerializeField] UIController ui;
 
         [SerializeField] Transform appliancesContainer;
         ApplianceController[] appliances;
         int NextApplianceIndex => appliances != null ? Array.FindIndex(appliances, appliance => !appliance.IsActive) : -1;
         ApplianceController NextAppliance => appliances != null ? Array.Find(appliances, appliance => !appliance.IsActive) : null;
         bool CanAddAppliance => NextApplianceIndex >= 0 && NextApplianceIndex < appliances.Length;
+        ApplianceController NextApplianceToLevelUp => appliances != null ? appliances.Where(appliance => appliance.CanLevelUp).OrderBy(appliance => appliance.NextLevelPrice).FirstOrDefault() : null;
+        bool CanLevelUpAnyAppliance => appliances != null ? appliances.Any(appliance => appliance.CanLevelUp) : false;
+        int TotalApplianceLevel => appliances != null ? appliances.Where(appliance => appliance.IsActive).Sum(appliance => appliance.Level) : 0;
 
         readonly EmployeeController[] employees = new EmployeeController[MaxEmployees];
         int NextEmployeeIndex => employees != null ? Array.FindIndex(employees, employee => !employee.IsActive) : -1;
@@ -120,10 +123,19 @@ namespace BunnyCoffee
             }
 
             CalculateAllProducts();
+            ui.SetShowBackdrop(false);
+            ui.SetShowHeader(true);
+            UpdateUI();
+            IsActive = true;
         }
 
         void Update()
         {
+            if (!IsActive)
+            {
+                return;
+            }
+
             accumulatedDelta += Time.deltaTime;
             if (accumulatedDelta < processEvery)
             {
@@ -329,18 +341,20 @@ namespace BunnyCoffee
         public void CompleteProduct(Product product)
         {
             gameState.AddMoney(product.Price);
+            UpdateUI();
         }
 
         public void HireEmployee()
         {
             EmployeeController next = NextEmployee;
-            if (next == null || gameState.GameState.NumEmployees >= employees.Length)
+            if (next == null || gameState.GameState.NumEmployees >= employees.Length || gameState.GameState.Money < NextEmployee.Price)
             {
                 return;
             }
 
             AddEmployee();
             gameState.AddEmployee(next.Price);
+            UpdateUI();
         }
 
         public void BuyAppliance()
@@ -355,6 +369,25 @@ namespace BunnyCoffee
 
             AddAppliance(0);
             gameState.AddAppliance(next.Price);
+            UpdateUI();
+        }
+
+        public void LevelUpAppliance()
+        {
+            ApplianceController nextApplianceToLevelUp = NextApplianceToLevelUp;
+            if (nextApplianceToLevelUp == null || !CanLevelUpAnyAppliance || nextApplianceToLevelUp.Price > gameState.GameState.Money)
+            {
+                return;
+            }
+
+            int price = nextApplianceToLevelUp.Price;
+            nextApplianceToLevelUp.LevelUp();
+            string levels = string.Join(",", appliances.Where(appliance => appliance.IsActive).Select(appliance => appliance.Level.ToString()));
+
+            Debug.Log(levels);
+
+            gameState.UpdateApplianceLevels(levels, price);
+            UpdateUI();
         }
 
         public void LevelUpAppliance(int index)
@@ -368,6 +401,7 @@ namespace BunnyCoffee
             string levels = string.Join(",", appliances.Select(appliance => appliance.Level.ToString()));
             appliances[index].LevelUp();
             gameState.UpdateApplianceLevels(levels, price);
+            UpdateUI();
         }
 
         public void BuyDecoration()
@@ -380,6 +414,7 @@ namespace BunnyCoffee
 
             AddDecoration();
             gameState.AddDecoration(next.Price);
+            UpdateUI();
         }
 
         //
@@ -434,6 +469,27 @@ namespace BunnyCoffee
                     }
                 }
             }
+        }
+
+        void UpdateUI()
+        {
+            ui.SetMoney(gameState.GameState.Money);
+
+            bool isEmployeeEnabled = CanAddEmployee && NextEmployee != null && NextEmployee.Price <= gameState.GameState.Money;
+            string employeePrice = NextEmployee != null ? NextEmployee.Price.ToString() : "-";
+            ui.UpdateEmployeeButton(gameState.GameState.NumEmployees, employeePrice, !isEmployeeEnabled);
+
+            bool isApplianceEnabled = CanAddAppliance && NextAppliance != null && NextAppliance.Price <= gameState.GameState.Money;
+            string appliancePrice = NextAppliance != null ? NextAppliance.Price.ToString() : "-";
+            ui.UpdateBuyApplianceButton(gameState.GameState.ApplianceLevels.Length, appliancePrice, !isApplianceEnabled);
+
+            bool isApplianceUpgradeEnabled = CanLevelUpAnyAppliance && NextApplianceToLevelUp != null && NextApplianceToLevelUp.Price <= gameState.GameState.Money;
+            string applianceUpgradePrice = NextApplianceToLevelUp != null ? NextApplianceToLevelUp.Price.ToString() : "-";
+            ui.UpdateUpgradeApplianceButton(TotalApplianceLevel, applianceUpgradePrice, !isApplianceUpgradeEnabled);
+
+            bool isDecorationEnabled = CanAddDecoration && NextDecoration != null && NextDecoration.Price <= gameState.GameState.Money;
+            string decorationPrice = NextDecoration != null ? NextDecoration.Price.ToString() : "-";
+            ui.UpdateDecorationButton(gameState.GameState.NumDecorations, decorationPrice, !isDecorationEnabled);
         }
 
 

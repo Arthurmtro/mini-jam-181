@@ -18,6 +18,7 @@ namespace BunnyCoffee
     public struct ApplianceTypeLevel
     {
         public string Name;
+        public int Price;
         public ApplianceTypeProduct[] Products;
     }
 
@@ -26,6 +27,7 @@ namespace BunnyCoffee
     {
         public string Id;
         public string Name;
+        public int Price;
         public ApplianceTypeLevel[] Levels;
     }
 

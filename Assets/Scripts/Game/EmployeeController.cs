@@ -24,6 +24,9 @@ namespace BunnyCoffee
         const float TimeToAskCustomer = 1;
         const float TimeToDeliver = 1;
 
+        [SerializeField] int price;
+        public int Price => price;
+
         public bool IsActive { get; private set; }
         public EmployeeStatus Status { get; private set; }
         public bool NeedsTimerUpdate => Status == EmployeeStatus.AskingCustomer || Status == EmployeeStatus.Delivering;

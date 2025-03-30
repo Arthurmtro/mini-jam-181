@@ -23,12 +23,15 @@ namespace BunnyCoffee
         [Header("Position")]
         public Transform EmployeePosition;
 
+        public int Price => type.Price;
+
         public string TypeId;
         private ApplianceType type;
         public int Level;
-        private ApplianceTypeLevel? currentLevel => type.Levels != null && Level < type.Levels.Length ? type.Levels[Level] : null;
-        private ApplianceTypeLevel? nextLevel => Level + 1 < type.Levels.Length ? type.Levels[Level + 1] : null;
-        public bool CanLevelUp => IsActive && nextLevel.HasValue;
+        private ApplianceTypeLevel? CurrentLevel => type.Levels != null && Level < type.Levels.Length ? type.Levels[Level] : null;
+        private ApplianceTypeLevel? NextLevel => Level + 1 < type.Levels.Length ? type.Levels[Level + 1] : null;
+        public bool CanLevelUp => IsActive && NextLevel.HasValue;
+        public int NextLevelPrice => NextLevel != null ? NextLevel.Value.Price : 0;
 
         public bool IsActive { get; private set; }
 
@@ -79,7 +82,7 @@ namespace BunnyCoffee
                 return false;
             }
 
-            return currentLevel?.Products.Any(product => product.ProductId == productId) ?? false;
+            return CurrentLevel?.Products.Any(product => product.ProductId == productId) ?? false;
         }
 
         public void LevelUp()
@@ -164,7 +167,7 @@ namespace BunnyCoffee
 
         ApplianceTypeProduct FindProduct(string productId)
         {
-            return Array.Find(currentLevel?.Products, product => product.ProductId == productId);
+            return Array.Find(CurrentLevel?.Products, product => product.ProductId == productId);
         }
 
         void OnDrawGizmos()
@@ -174,13 +177,12 @@ namespace BunnyCoffee
                 return;
             }
 
-
             GUIStyle centeredStyle = new GUIStyle(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleCenter
             };
             Handles.Label(transform.position + 1.25f * Vector3.up, Status.ToString(), centeredStyle);
-            Handles.Label(transform.position - 1.25f * Vector3.up, $"{type.Name} ({currentLevel?.Name ?? "-"})", centeredStyle);
+            Handles.Label(transform.position - 1.25f * Vector3.up, $"{type.Name} ({CurrentLevel?.Name ?? "-"})", centeredStyle);
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireCube(transform.position, 1.25f * Vector3.one);
             Gizmos.color = !IsFree ? Color.red : Color.magenta;

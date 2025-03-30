@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
+using Unity.VisualScripting;
+
 
 
 #if UNITY_EDITOR
@@ -37,20 +39,30 @@ namespace BunnyCoffee
 
         [Header("Controllers")]
         [SerializeField] EmployeeController employeeController;
-        [SerializeField] Transform tableControllersContainer;
+        [SerializeField] Transform tablesContainer;
         TableController[] tableControllers;
 
-        [SerializeField] Transform applianceControllersContainer;
+        [SerializeField] Transform appliancesContainer;
         ApplianceController[] appliances;
+        int NextApplianceIndex => appliances != null ? Array.FindIndex(appliances, appliance => !appliance.IsActive) : -1;
+        ApplianceController NextAppliance => appliances != null ? Array.Find(appliances, appliance => !appliance.IsActive) : null;
+        bool CanAddAppliance => NextApplianceIndex >= 0 && NextApplianceIndex < appliances.Length;
 
-        int nextApplianceIndex => Array.FindIndex(appliances, appliance => !appliance.IsActive);
         readonly EmployeeController[] employees = new EmployeeController[MaxEmployees];
-        int nextEmployeeIndex => Array.FindIndex(employees, employee => !employee.IsActive);
+        int NextEmployeeIndex => employees != null ? Array.FindIndex(employees, employee => !employee.IsActive) : -1;
+        EmployeeController NextEmployee => employees != null ? Array.Find(employees, employee => !employee.IsActive) : null;
+        bool CanAddEmployee => NextEmployeeIndex >= 0 && NextEmployeeIndex < employees.Length;
+
+        [SerializeField] Transform decorationsContainer;
+        DecorationController[] decorations;
+        int NextDecorationIndex => Array.FindIndex(decorations, decoration => !decoration.IsActive);
+        DecorationController NextDecoration => Array.Find(decorations, decoration => !decoration.IsActive);
+        bool CanAddDecoration => NextDecorationIndex >= 0 && NextDecorationIndex < decorations.Length;
 
         readonly CustomerController[] customers = new CustomerController[MaxCustomers];
         int lastCustomerIndex = 0;
 
-        float timeToCustomer = 2f;
+        float timeToCustomer = 5f;
         float accumulatedDelta = 0;
 
         void Start()
@@ -64,8 +76,9 @@ namespace BunnyCoffee
             }
 
             barPositions = barPositionsContainer.GetComponentsInChildren<BarPosition>().ToArray();
-            tableControllers = tableControllersContainer.GetComponentsInChildren<TableController>().ToArray();
-            appliances = applianceControllersContainer.GetComponentsInChildren<ApplianceController>().ToArray();
+            tableControllers = tablesContainer.GetComponentsInChildren<TableController>().ToArray();
+            appliances = appliancesContainer.GetComponentsInChildren<ApplianceController>().ToArray();
+            decorations = decorationsContainer.GetComponentsInChildren<DecorationController>().ToArray();
 
             customersContainer = new GameObject("Customers").transform;
             customersContainer.SetParent(transform);
@@ -92,6 +105,7 @@ namespace BunnyCoffee
                 customers[i] = newCustomer.GetComponent<CustomerController>();
             }
 
+            // restore saved state
             foreach (var applianceLevel in gameState.GameState.ApplianceLevels)
             {
                 AddAppliance(applianceLevel);
@@ -99,6 +113,10 @@ namespace BunnyCoffee
             for (int i = 0; i < gameState.GameState.NumEmployees; i++)
             {
                 AddEmployee();
+            }
+            for (int i = 0; i < gameState.GameState.NumDecorations; i++)
+            {
+                AddDecoration();
             }
 
             CalculateAllProducts();
@@ -138,8 +156,8 @@ namespace BunnyCoffee
 
         void AddAppliance(int level = 0)
         {
-            int nextIndex = nextApplianceIndex;
-            if (nextIndex < 0 || nextIndex >= appliances.Length || level < 0)
+            int nextIndex = NextApplianceIndex;
+            if (!CanAddAppliance || level < 0)
             {
                 return;
             }
@@ -150,8 +168,8 @@ namespace BunnyCoffee
 
         void AddEmployee()
         {
-            int nextIndex = nextEmployeeIndex;
-            if (nextIndex < 0 || nextIndex >= employees.Length)
+            int nextIndex = NextEmployeeIndex;
+            if (!CanAddEmployee)
             {
                 return;
             }
@@ -189,6 +207,17 @@ namespace BunnyCoffee
                 nextCustomer.ActivateToQueue(queuePosition);
                 timeToCustomer = 2f;
             }
+        }
+
+        void AddDecoration()
+        {
+            int nextIndex = NextDecorationIndex;
+            if (nextIndex < 0 || nextIndex >= decorations.Length)
+            {
+                return;
+            }
+
+            decorations[nextIndex].Activate();
         }
 
         void UpdateAppliance(int index, float timeDelta)
@@ -277,6 +306,11 @@ namespace BunnyCoffee
 
         public Product? GetRandomProduct()
         {
+            if (products.Count == 0)
+            {
+                return null;
+            }
+
             return products.Values.ElementAt(UnityEngine.Random.Range(0, products.Count));
         }
 
@@ -299,24 +333,28 @@ namespace BunnyCoffee
 
         public void HireEmployee()
         {
-            if (gameState.GameState.NumEmployees >= employees.Length)
+            EmployeeController next = NextEmployee;
+            if (next == null || gameState.GameState.NumEmployees >= employees.Length)
             {
                 return;
             }
 
             AddEmployee();
-            gameState.AddEmployee();
+            gameState.AddEmployee(next.Price);
         }
 
         public void BuyAppliance()
         {
-            if (gameState.GameState.ApplianceLevels.Length >= appliances.Length)
+            ApplianceController next = NextAppliance;
+            Debug.Log(gameState.GameState.ApplianceLevels.Length);
+            Debug.Log(appliances.Length);
+            if (next == null || gameState.GameState.ApplianceLevels.Length >= appliances.Length || gameState.GameState.Money < next.Price)
             {
                 return;
             }
 
             AddAppliance(0);
-            gameState.AddAppliance();
+            gameState.AddAppliance(next.Price);
         }
 
         public void LevelUpAppliance(int index)
@@ -326,9 +364,22 @@ namespace BunnyCoffee
                 return;
             }
 
-            appliances[index].LevelUp();
+            int price = appliances[index].Price;
             string levels = string.Join(",", appliances.Select(appliance => appliance.Level.ToString()));
-            gameState.UpdateApplicationLevels(levels);
+            appliances[index].LevelUp();
+            gameState.UpdateApplianceLevels(levels, price);
+        }
+
+        public void BuyDecoration()
+        {
+            DecorationController next = NextDecoration;
+            if (next == null || gameState.GameState.NumDecorations >= decorations.Length)
+            {
+                return;
+            }
+
+            AddDecoration();
+            gameState.AddDecoration(next.Price);
         }
 
         //
@@ -394,7 +445,7 @@ namespace BunnyCoffee
             {
                 DrawDefaultInspector();
 
-                GameManager gameManager = (GameManager)target;
+                GameManager manager = (GameManager)target;
 
                 if (EditorApplication.isPlaying)
                 {
@@ -402,30 +453,42 @@ namespace BunnyCoffee
                     EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
                     EditorGUILayout.Space();
 
-                    if (GUILayout.Button("Hire Employee"))
-                    {
-                        gameManager.HireEmployee();
-                    }
-
-                    if (GUILayout.Button("Add Appliance"))
-                    {
-                        gameManager.BuyAppliance();
-                    }
-
-                    if (gameManager.appliances != null)
-                    {
-                        for (int i = 0; i < gameManager.appliances.Length; i++)
+                    if (manager.CanAddEmployee && manager.NextEmployee != null)
+                        if (GUILayout.Button($"Hire Employee (${manager.NextEmployee.Price})"))
                         {
-                            var appliance = gameManager.appliances[i];
+                            manager.HireEmployee();
+                        }
+
+                    if (manager.CanAddAppliance && manager.NextAppliance != null)
+                    {
+                        if (GUILayout.Button($"Buy Appliance (${manager.NextAppliance.Price})"))
+                        {
+                            manager.BuyAppliance();
+                        }
+                    }
+
+                    if (manager.appliances != null)
+                    {
+                        for (int i = 0; i < manager.appliances.Length; i++)
+                        {
+                            var appliance = manager.appliances[i];
 
                             if (appliance.CanLevelUp)
                             {
-                                if (GUILayout.Button($"{appliance.name} [{i}] - Level UP"))
+                                if (GUILayout.Button($"{appliance.name} [{i}] - Level UP (${appliance.NextLevelPrice})"))
                                 {
-                                    gameManager.LevelUpAppliance(i);
+                                    manager.LevelUpAppliance(i);
                                 }
 
                             }
+                        }
+                    }
+
+                    if (manager.CanAddDecoration && manager.NextDecoration != null)
+                    {
+                        if (GUILayout.Button($"Buy Decoration (${manager.NextDecoration.Price})"))
+                        {
+                            manager.BuyDecoration();
                         }
                     }
 

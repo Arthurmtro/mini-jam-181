@@ -26,6 +26,16 @@ MonoBehaviour:
         MinQuality: 0
         MaxQuality: 1
         Duration: 4
+    - Name: Level 2
+      Products:
+      - ProductId: coffee-latte
+        MinQuality: 1
+        MaxQuality: 2
+        Duration: 4
+      - ProductId: coffee-americano
+        MinQuality: 1
+        MaxQuality: 2
+        Duration: 3
   - Id: bakery
     Name: Bakery
     Levels:

@@ -16,21 +16,23 @@ namespace BunnyCoffee
         public int NumEmployees;
         public string ApplianceLevelsString;
         public int[] ApplianceLevels => ApplianceLevelsString.Split(',').ToArray().Select(int.Parse).ToArray();
+        public int NumDecorations;
 
-        public GameState(int money = 0, int numEmployees = 1, string applianceLevelsString = "0")
+        public GameState(int money = 0, int numEmployees = 1, string applianceLevelsString = "0", int numDecorations = 0)
         {
             Money = money;
             NumEmployees = numEmployees;
-            ApplianceLevelsString = applianceLevelsString;
+            ApplianceLevelsString = applianceLevelsString ?? "0";
+            NumDecorations = numDecorations;
         }
     }
 
     public class GameStateManager : MonoBehaviour
     {
-        GameState gameState = new(0, 1, "0");
+        GameState gameState = new(0, 1, "0", 0);
         public GameState GameState => gameState;
 
-        const string SaveDataKey = "game.saveData.v2";
+        const string SaveDataKey = "game.saveData.v3";
 
         void Start()
         {
@@ -43,28 +45,38 @@ namespace BunnyCoffee
             Save();
         }
 
-        public void AddEmployee()
+        public void AddEmployee(int price)
         {
             gameState.NumEmployees++;
+            gameState.Money -= price;
             Save();
         }
 
-        public void AddAppliance()
+        public void AddAppliance(int price)
         {
             gameState.ApplianceLevelsString += ",0";
+            gameState.Money -= price;
             Save();
         }
 
-        public void UpdateApplicationLevels(string levels)
+        public void UpdateApplianceLevels(string levels, int price)
         {
             gameState.ApplianceLevelsString = levels;
+            gameState.Money -= price;
+            Save();
+        }
+
+        public void AddDecoration(int price)
+        {
+            gameState.NumDecorations++;
+            gameState.Money -= price;
             Save();
         }
 
         void Reset()
         {
             PlayerPrefs.DeleteKey(SaveDataKey);
-            gameState = new GameState(0, 1, "0");
+            gameState = new GameState(0, 1, "0", 0);
         }
 
         void Load()
@@ -97,7 +109,14 @@ namespace BunnyCoffee
             {
                 alignment = TextAnchor.MiddleCenter
             };
-            Handles.Label(transform.position, $"Money: {gameState.Money}\nEmployees: {gameState.NumEmployees}\nAppliances: {gameState.ApplianceLevelsString}", centeredStyle);
+            Handles.Label(
+                transform.position,
+                $"Money: {gameState.Money}\n" +
+                $"Employees: {gameState.NumEmployees}\n" +
+                $"Appliances: {gameState.ApplianceLevelsString}\n" +
+                $"Decorations: {gameState.NumDecorations}",
+                centeredStyle
+            );
         }
 
 #if UNITY_EDITOR

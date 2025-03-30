@@ -127,15 +127,26 @@ namespace BunnyCoffee
 
             CalculateAllProducts();
             ui.SetShowBackdrop(false);
-            ui.SetShowHeader(true);
+            ui.SetShowIntro(true);
             UpdateUI();
+        }
+
+        public void StartGame()
+        {
             IsActive = true;
+            ui.SetShowHeader(true);
+            ui.SetShowIntro(false);
         }
 
         void Update()
         {
             if (!IsActive)
             {
+                for (int i = 0; i < MaxEmployees; i++)
+                {
+                    UpdateEmployee(i, accumulatedDelta);
+                }
+
                 return;
             }
 

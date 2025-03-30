@@ -22,6 +22,11 @@ namespace BunnyCoffee
             animator = GetComponent<Animator>();
         }
 
+        public void SetShowIntro(bool value)
+        {
+            animator.SetBool("Intro", value);
+        }
+
         public void SetShowBackdrop(bool value)
         {
             animator.SetBool("Backdrop", value);

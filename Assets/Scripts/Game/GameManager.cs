@@ -62,7 +62,7 @@ namespace BunnyCoffee
         readonly CustomerController[] customers = new CustomerController[MaxCustomers];
         int lastCustomerIndex = 0;
 
-        float timeToCustomer = 5f;
+        float timeToCustomer = 15f;
         float accumulatedDelta = 0;
 
         void Start()

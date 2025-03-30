@@ -15,8 +15,10 @@ MonoBehaviour:
   types:
   - Id: coffee-machine-1
     Name: Cofee Machine
+    Price: 150
     Levels:
     - Name: Level 1
+      Price: 250
       Products:
       - ProductId: coffee-latte
         MinQuality: 0
@@ -27,6 +29,7 @@ MonoBehaviour:
         MaxQuality: 1
         Duration: 4
     - Name: Level 2
+      Price: 500
       Products:
       - ProductId: coffee-latte
         MinQuality: 1
@@ -38,8 +41,10 @@ MonoBehaviour:
         Duration: 3
   - Id: bakery
     Name: Bakery
+    Price: 150
     Levels:
     - Name: Level 1
+      Price: 250
       Products:
       - ProductId: bakery-croissant
         MinQuality: 0

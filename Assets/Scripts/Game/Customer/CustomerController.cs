@@ -5,7 +5,6 @@ using UnityEngine.AI;
 
 namespace BunnyCoffee
 {
-
     public enum CustomerStatus
     {
         Idle,
@@ -24,14 +23,15 @@ namespace BunnyCoffee
         Leaving,
     }
 
+    [RequireComponent(typeof(CustomerAnimationController))]
     [RequireComponent(typeof(NavMeshAgent))]
     public class CustomerController : MonoBehaviour
     {
         const float TimeToThinkOrder = 1;
         const float TimeToExplainOrder = 1;
         const float TimeToReceiveOrder = 1;
-        const float TimeToEnjoyOrder = 5;
-        const float TimeToReviewOrder = 1;
+        const float TimeToEnjoyOrder = 15;
+        const float TimeToReviewOrder = 2;
 
         public bool IsActive { get; private set; }
         public CustomerStatus Status;
@@ -49,9 +49,12 @@ namespace BunnyCoffee
         NavMeshAgent agent;
         public bool HasReachedDestination => !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance;
 
+        CustomerAnimationController animations;
+
         void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            animations = GetComponent<CustomerAnimationController>();
         }
 
         void Start()
@@ -113,11 +116,13 @@ namespace BunnyCoffee
             QueuePosition.Reserve();
             Status = CustomerStatus.MovingToQueue;
             MoveToTarget(queuePosition.CustomerPosition);
+            animations.SetValues(true, false);
         }
 
         public void StartInQueue()
         {
             Status = CustomerStatus.InQueue;
+            animations.SetValues(false, false);
         }
 
         public void StartMovingToBar(BarPosition barPosition)
@@ -137,17 +142,20 @@ namespace BunnyCoffee
             BarPosition.Reserve();
             Status = CustomerStatus.MovingToBar;
             MoveToTarget(barPosition.CustomerPosition);
+            animations.SetValues(true, false);
         }
 
         public void StartThinkingOrder()
         {
             Status = CustomerStatus.ThinkingOrder;
             RemainingTime = TimeToThinkOrder;
+            animations.SetValues(false, false);
         }
 
         public void StartWaitingEmployee()
         {
             Status = CustomerStatus.WaitingEmployee;
+            animations.SetValues(false, false);
         }
 
         public void StartExplainingOrder(Product product)
@@ -155,22 +163,26 @@ namespace BunnyCoffee
             this.product = product;
             Status = CustomerStatus.ExplainingOrder;
             RemainingTime = TimeToExplainOrder;
+            animations.SetValues(false, false);
         }
 
         public void StartWaitingOrder()
         {
             Status = CustomerStatus.WaitingOrder;
+            animations.SetValues(false, false);
         }
 
         public void StartReceivingOrder()
         {
             Status = CustomerStatus.ReceivingOrder;
             RemainingTime = TimeToReceiveOrder;
+            animations.SetValues(false, false);
         }
 
         public void StartWaitingTable()
         {
             Status = CustomerStatus.WaitingTable;
+            animations.SetValues(false, false);
         }
 
         public void StartMovingToTable()
@@ -186,29 +198,33 @@ namespace BunnyCoffee
 
             Status = CustomerStatus.MovingToTable;
             MoveToTarget(Table.CustomerPosition.position);
+            animations.SetValues(true, false);
         }
 
         public void StartConsumingOrder()
         {
             Status = CustomerStatus.ConsumingOrder;
             RemainingTime = TimeToEnjoyOrder;
+            animations.SetValues(false, true);
         }
 
         public void StartReviewingOrder()
         {
             Status = CustomerStatus.ReviewingOrder;
             RemainingTime = TimeToReviewOrder;
+            animations.SetValues(false, false);
         }
 
         public void StartLeaving()
         {
-            Status = CustomerStatus.Leaving;
-            MoveToTarget(inactivePosition);
-
             if (Table != null)
             {
                 Table.Free();
             }
+
+            Status = CustomerStatus.Leaving;
+            MoveToTarget(inactivePosition);
+            animations.SetValues(true, false);
         }
 
         // update by status

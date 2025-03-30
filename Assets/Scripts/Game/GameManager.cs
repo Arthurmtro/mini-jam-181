@@ -12,9 +12,10 @@ namespace BunnyCoffee
     public class GameManager : MonoBehaviour
     {
         const int MaxEmployees = 2;
-        const int MaxCustomers = 40;
+        const int MaxCustomers = 20;
         // seconds after the controllers are updated - to avoid too many irrelevant updates
         const float processEvery = 0.1f;
+        const float baseTimeToCustomer = 7.5f;
 
         [Header("State")]
         [SerializeField] bool IsActive = false;
@@ -52,6 +53,7 @@ namespace BunnyCoffee
         int TotalApplianceLevel => appliances != null ? appliances.Where(appliance => appliance.IsActive).Sum(appliance => appliance.Level) : 0;
 
         readonly EmployeeController[] employees = new EmployeeController[MaxEmployees];
+        int NumActiveEmployees => employees != null ? employees.Where(employee => employee.IsActive).Sum(employee => 1) : 1;
         int NextEmployeeIndex => employees != null ? Array.FindIndex(employees, employee => !employee.IsActive) : -1;
         EmployeeController NextEmployee => employees != null ? Array.Find(employees, employee => !employee.IsActive) : null;
         bool CanAddEmployee => NextEmployeeIndex >= 0 && NextEmployeeIndex < employees.Length;
@@ -65,7 +67,8 @@ namespace BunnyCoffee
         readonly CustomerController[] customers = new CustomerController[MaxCustomers];
         int lastCustomerIndex = 0;
 
-        float timeToCustomer = 10f;
+        float NextTimeToCustomer => baseTimeToCustomer / NumActiveEmployees;
+        float timeToCustomer = baseTimeToCustomer;
         float accumulatedDelta = 0;
 
         void Start()
@@ -203,7 +206,7 @@ namespace BunnyCoffee
                 if (barPosition != null)
                 {
                     nextCustomer.ActivateToBar(barPosition);
-                    timeToCustomer = 10f;
+                    timeToCustomer = NextTimeToCustomer;
                     return;
                 }
             }
@@ -217,7 +220,7 @@ namespace BunnyCoffee
             if (queuePosition != null)
             {
                 nextCustomer.ActivateToQueue(queuePosition);
-                timeToCustomer = 10f;
+                timeToCustomer = NextTimeToCustomer;
             }
         }
 
@@ -437,7 +440,7 @@ namespace BunnyCoffee
 
         Vector3 GetInactivePosition(Vector3 basePosition, int index)
         {
-            int gridSize = 10;
+            int gridSize = 5;
             int distance = 5;
             int x = index / gridSize;
             int y = index % gridSize;

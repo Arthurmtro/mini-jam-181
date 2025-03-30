@@ -1,7 +1,6 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Rendering.RenderGraphModule;
 
 namespace BunnyCoffee
 {
@@ -25,6 +24,9 @@ namespace BunnyCoffee
         const float TimeToAskCustomer = 1;
         const float TimeToDeliver = 1;
 
+        [SerializeField] int price;
+        public int Price => price;
+
         public bool IsActive { get; private set; }
         public EmployeeStatus Status { get; private set; }
         public bool NeedsTimerUpdate => Status == EmployeeStatus.AskingCustomer || Status == EmployeeStatus.Delivering;
@@ -34,6 +36,7 @@ namespace BunnyCoffee
         EmployeeIdlePosition idlePosition;
         CustomerController customer;
         ApplianceController appliance;
+        Product? product;
 
         NavMeshAgent agent;
         public bool HasReachedDestination => !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance;
@@ -55,11 +58,11 @@ namespace BunnyCoffee
             IsActive = false;
         }
 
-        public void Activate()
+        public void Activate(GameManager game)
         {
             Reset();
             IsActive = true;
-            StartWaitingIdlePosition();
+            StartWaitingIdlePosition(game);
         }
 
         // State init
@@ -81,12 +84,16 @@ namespace BunnyCoffee
             }
         }
 
-        public void StartAskingCustomer()
+        public void StartAskingCustomer(GameManager game)
         {
             Status = EmployeeStatus.AskingCustomer;
             RemainingTime = TimeToAskCustomer;
+            product = game.GetRandomProduct();
 
-            customer.StartExplainingOrder();
+            if (product.HasValue)
+            {
+                customer.StartExplainingOrder(product.Value);
+            }
         }
 
         public void StarWaitingForAppliance()
@@ -109,8 +116,12 @@ namespace BunnyCoffee
         public void StartPreparing()
         {
             Status = EmployeeStatus.Preparing;
-            RemainingTime = 3f;
-            appliance.StartPreparing("");
+
+            if (product.HasValue)
+            {
+
+                RemainingTime = appliance.StartPreparing(product.Value.Id);
+            }
         }
 
         public void StartMovingToCustomerToDeliver()
@@ -132,8 +143,14 @@ namespace BunnyCoffee
             customer.StartReceivingOrder();
         }
 
-        public void StartWaitingIdlePosition()
+        public void StartWaitingIdlePosition(GameManager game)
         {
+            if (product != null)
+            {
+                game.CompleteProduct(product.Value);
+            }
+
+            product = null;
             Status = EmployeeStatus.WaitingIdlePosition;
         }
 
@@ -155,7 +172,7 @@ namespace BunnyCoffee
                     UpdateWithStatusIdle(game);
                     break;
                 case EmployeeStatus.MovingToCustomer:
-                    UpdateWithStatusMovingToCustomer(deltaTime);
+                    UpdateWithStatusMovingToCustomer(game);
                     break;
                 case EmployeeStatus.AskingCustomer:
                     UpdateWithStatusAskingCustomer(deltaTime);
@@ -173,7 +190,7 @@ namespace BunnyCoffee
                     UpdateWithStatusMovingToCustomerToDeliver();
                     break;
                 case EmployeeStatus.Delivering:
-                    UpdateWithStatusDelivering(deltaTime);
+                    UpdateWithStatusDelivering(deltaTime, game);
                     break;
                 case EmployeeStatus.WaitingIdlePosition:
                     UpdateWithStatusWaitingIdlePosition(game);
@@ -189,11 +206,11 @@ namespace BunnyCoffee
             FindCustomerToAttend(game);
         }
 
-        public void UpdateWithStatusMovingToCustomer(float deltaTime)
+        public void UpdateWithStatusMovingToCustomer(GameManager game)
         {
             if (HasReachedDestination)
             {
-                StartAskingCustomer();
+                StartAskingCustomer(game);
             }
         }
 
@@ -210,7 +227,12 @@ namespace BunnyCoffee
 
         public void UpdateWithStatusWaitingForAppliance(GameManager game)
         {
-            appliance = game.FindFreeAppliance();
+            if (product == null)
+            {
+                return;
+            }
+
+            appliance = game.FindFreeAppliance(product.Value.Id);
             if (appliance != null)
             {
                 StartMovingToAppliance();
@@ -244,11 +266,11 @@ namespace BunnyCoffee
             }
         }
 
-        public void UpdateWithStatusDelivering(float deltaTime)
+        public void UpdateWithStatusDelivering(float deltaTime, GameManager game)
         {
             if (RemainingTime == 0)
             {
-                StartWaitingIdlePosition();
+                StartWaitingIdlePosition(game);
                 return;
             }
 
@@ -305,7 +327,16 @@ namespace BunnyCoffee
         {
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(transform.position, 0.5f);
-            Handles.Label(transform.position + 1f * Vector3.up + 1f * Vector3.left, Status.ToString());
+            GUIStyle centeredStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter
+            };
+            Handles.Label(transform.position + 1f * Vector3.up, Status.ToString(), centeredStyle);
+
+            if (product.HasValue)
+            {
+                Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name, centeredStyle);
+            }
         }
     }
 }

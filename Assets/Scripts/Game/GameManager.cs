@@ -1,22 +1,29 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
+using Unity.VisualScripting;
+
+
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace BunnyCoffee
 {
     public class GameManager : MonoBehaviour
     {
-        const int MaxAppliances = 4;
         const int MaxEmployees = 4;
         const int MaxCustomers = 40;
         // seconds after the controllers are updated - to avoid too many irrelevant updates
         const float processEvery = 0.1f;
 
         [Header("Resources")]
-        [SerializeField] ApplianceTypeCollection applianceTypes;
-        [SerializeField] ProductCollection productTypes;
-        [SerializeField] EmployeeController employeeController;
-        [SerializeField] CustomerTypeCollection customerTypes;
+        [SerializeField] ResourceManager resources;
+        [SerializeField] GameStateManager gameState;
+        Dictionary<string, Product> products = new();
 
         [Header("Positions")]
         [SerializeField] Transform employeesIdlePositionsContainer;
@@ -31,21 +38,31 @@ namespace BunnyCoffee
         BarPosition[] barPositions;
 
         [Header("Controllers")]
-        [SerializeField] Transform tableControllersContainer;
+        [SerializeField] EmployeeController employeeController;
+        [SerializeField] Transform tablesContainer;
         TableController[] tableControllers;
 
-        [SerializeField] Transform applianceControllersContainer;
+        [SerializeField] Transform appliancesContainer;
         ApplianceController[] appliances;
+        int NextApplianceIndex => appliances != null ? Array.FindIndex(appliances, appliance => !appliance.IsActive) : -1;
+        ApplianceController NextAppliance => appliances != null ? Array.Find(appliances, appliance => !appliance.IsActive) : null;
+        bool CanAddAppliance => NextApplianceIndex >= 0 && NextApplianceIndex < appliances.Length;
 
-        // readonly Appliance[] appliances = new Appliance[MaxAppliances];
-        int nextApplianceIndex => Array.FindIndex(appliances, appliance => !appliance.IsActive);
         readonly EmployeeController[] employees = new EmployeeController[MaxEmployees];
-        int nextEmployeeIndex => Array.FindIndex(employees, employee => !employee.IsActive);
+        int NextEmployeeIndex => employees != null ? Array.FindIndex(employees, employee => !employee.IsActive) : -1;
+        EmployeeController NextEmployee => employees != null ? Array.Find(employees, employee => !employee.IsActive) : null;
+        bool CanAddEmployee => NextEmployeeIndex >= 0 && NextEmployeeIndex < employees.Length;
+
+        [SerializeField] Transform decorationsContainer;
+        DecorationController[] decorations;
+        int NextDecorationIndex => Array.FindIndex(decorations, decoration => !decoration.IsActive);
+        DecorationController NextDecoration => Array.Find(decorations, decoration => !decoration.IsActive);
+        bool CanAddDecoration => NextDecorationIndex >= 0 && NextDecorationIndex < decorations.Length;
 
         readonly CustomerController[] customers = new CustomerController[MaxCustomers];
         int lastCustomerIndex = 0;
 
-        float timeToCustomer = 2f;
+        float timeToCustomer = 5f;
         float accumulatedDelta = 0;
 
         void Start()
@@ -59,8 +76,9 @@ namespace BunnyCoffee
             }
 
             barPositions = barPositionsContainer.GetComponentsInChildren<BarPosition>().ToArray();
-            tableControllers = tableControllersContainer.GetComponentsInChildren<TableController>().ToArray();
-            appliances = applianceControllersContainer.GetComponentsInChildren<ApplianceController>().ToArray();
+            tableControllers = tablesContainer.GetComponentsInChildren<TableController>().ToArray();
+            appliances = appliancesContainer.GetComponentsInChildren<ApplianceController>().ToArray();
+            decorations = decorationsContainer.GetComponentsInChildren<DecorationController>().ToArray();
 
             customersContainer = new GameObject("Customers").transform;
             customersContainer.SetParent(transform);
@@ -79,7 +97,7 @@ namespace BunnyCoffee
 
             for (int i = 0; i < MaxCustomers; i++)
             {
-                CustomerType randomCustomerType = customerTypes.AtIndex(UnityEngine.Random.Range(0, customerTypes.Count));
+                CustomerType randomCustomerType = resources.CustomerTypes.AtIndex(UnityEngine.Random.Range(0, resources.CustomerTypes.Count));
                 GameObject newCustomer = Instantiate(randomCustomerType.Controller.gameObject, customersContainer);
                 newCustomer.name = $"[{i}] Customer (Type={randomCustomerType.Name})";
                 newCustomer.transform.position = GetInactivePosition(customerInactivePosition.position, i);
@@ -87,10 +105,21 @@ namespace BunnyCoffee
                 customers[i] = newCustomer.GetComponent<CustomerController>();
             }
 
-            AddEmployee();
-            AddEmployee();
-            // AddEmployee();
-            // AddEmployee();
+            // restore saved state
+            foreach (var applianceLevel in gameState.GameState.ApplianceLevels)
+            {
+                AddAppliance(applianceLevel);
+            }
+            for (int i = 0; i < gameState.GameState.NumEmployees; i++)
+            {
+                AddEmployee();
+            }
+            for (int i = 0; i < gameState.GameState.NumDecorations; i++)
+            {
+                AddDecoration();
+            }
+
+            CalculateAllProducts();
         }
 
         void Update()
@@ -119,24 +148,36 @@ namespace BunnyCoffee
             timeToCustomer = Mathf.Max(0, timeToCustomer - accumulatedDelta);
             if (timeToCustomer == 0)
             {
-                AddCustomer(productTypes.AtIndex(0).Id);
+                AddCustomer();
             }
 
             accumulatedDelta = 0;
         }
 
-        void AddEmployee()
+        void AddAppliance(int level = 0)
         {
-            int nextIndex = nextEmployeeIndex;
-            if (nextIndex >= employees.Length)
+            int nextIndex = NextApplianceIndex;
+            if (!CanAddAppliance || level < 0)
             {
                 return;
             }
 
-            employees[nextIndex].Activate();
+            appliances[nextIndex].Activate(level);
+            CalculateAllProducts();
         }
 
-        void AddCustomer(string productId)
+        void AddEmployee()
+        {
+            int nextIndex = NextEmployeeIndex;
+            if (!CanAddEmployee)
+            {
+                return;
+            }
+
+            employees[nextIndex].Activate(this);
+        }
+
+        void AddCustomer()
         {
             CustomerController nextCustomer = FindNextCustomer();
             if (nextCustomer == null)
@@ -149,7 +190,7 @@ namespace BunnyCoffee
                 BarPosition barPosition = FindFreeBarPosition();
                 if (barPosition != null)
                 {
-                    nextCustomer.ActivateToBar(barPosition, productId);
+                    nextCustomer.ActivateToBar(barPosition);
                     timeToCustomer = 2f;
                     return;
                 }
@@ -163,16 +204,27 @@ namespace BunnyCoffee
             QueuePosition queuePosition = FindFreeQueuePosition();
             if (queuePosition != null)
             {
-                nextCustomer.ActivateToQueue(queuePosition, productId);
+                nextCustomer.ActivateToQueue(queuePosition);
                 timeToCustomer = 2f;
             }
+        }
+
+        void AddDecoration()
+        {
+            int nextIndex = NextDecorationIndex;
+            if (nextIndex < 0 || nextIndex >= decorations.Length)
+            {
+                return;
+            }
+
+            decorations[nextIndex].Activate();
         }
 
         void UpdateAppliance(int index, float timeDelta)
         {
             if (!appliances[index].IsActive)
             {
-                // return;
+                return;
             }
 
             appliances[index].UpdateController(timeDelta);
@@ -206,11 +258,6 @@ namespace BunnyCoffee
         public EmployeeIdlePosition FindEmployeeIdlePosition()
         {
             return Array.Find(employeeIdlePositions, position => !position.IsBusy);
-        }
-
-        public BarPosition FindFreeBarPosition()
-        {
-            return Array.Find(barPositions, position => !position.IsBusy);
         }
 
         public QueuePosition FindFreeQueuePosition()
@@ -251,15 +298,91 @@ namespace BunnyCoffee
             return true;
         }
 
+        public BarPosition FindFreeBarPosition()
+        {
+            return Array.Find(barPositions, position => !position.IsBusy);
+        }
+
+
+        public Product? GetRandomProduct()
+        {
+            if (products.Count == 0)
+            {
+                return null;
+            }
+
+            return products.Values.ElementAt(UnityEngine.Random.Range(0, products.Count));
+        }
+
         public TableController FindFreeTable()
         {
             return Array.Find(tableControllers, table => !table.IsBusy);
         }
 
-        public ApplianceController FindFreeAppliance()
+        public ApplianceController FindFreeAppliance(string productId)
         {
-            return Array.Find(appliances, appliance => appliance.IsFree);
+            return Array.Find(appliances, appliance => appliance.CanPrepare(productId));
         }
+
+        // Change in game state
+
+        public void CompleteProduct(Product product)
+        {
+            gameState.AddMoney(product.Price);
+        }
+
+        public void HireEmployee()
+        {
+            EmployeeController next = NextEmployee;
+            if (next == null || gameState.GameState.NumEmployees >= employees.Length)
+            {
+                return;
+            }
+
+            AddEmployee();
+            gameState.AddEmployee(next.Price);
+        }
+
+        public void BuyAppliance()
+        {
+            ApplianceController next = NextAppliance;
+            Debug.Log(gameState.GameState.ApplianceLevels.Length);
+            Debug.Log(appliances.Length);
+            if (next == null || gameState.GameState.ApplianceLevels.Length >= appliances.Length || gameState.GameState.Money < next.Price)
+            {
+                return;
+            }
+
+            AddAppliance(0);
+            gameState.AddAppliance(next.Price);
+        }
+
+        public void LevelUpAppliance(int index)
+        {
+            if (index < 0 || index >= appliances.Length)
+            {
+                return;
+            }
+
+            int price = appliances[index].Price;
+            string levels = string.Join(",", appliances.Select(appliance => appliance.Level.ToString()));
+            appliances[index].LevelUp();
+            gameState.UpdateApplianceLevels(levels, price);
+        }
+
+        public void BuyDecoration()
+        {
+            DecorationController next = NextDecoration;
+            if (next == null || gameState.GameState.NumDecorations >= decorations.Length)
+            {
+                return;
+            }
+
+            AddDecoration();
+            gameState.AddDecoration(next.Price);
+        }
+
+        //
 
         CustomerController FindNextCustomer()
         {
@@ -286,6 +409,92 @@ namespace BunnyCoffee
 
             return new Vector3(basePosition.x + x * distance, basePosition.y + y * distance, basePosition.z);
         }
-    }
 
+        void CalculateAllProducts()
+        {
+            products = new Dictionary<string, Product>();
+            foreach (var appliance in appliances)
+            {
+                if (!appliance.IsActive)
+                {
+                    continue;
+                }
+
+                ApplianceType type = resources.ApplianceTypes.ById(appliance.TypeId);
+                foreach (ApplianceTypeLevel level in type.Levels)
+                {
+                    foreach (ApplianceTypeProduct levelProduct in level.Products)
+                    {
+                        Product product = resources.ProductTypes.ById(levelProduct.ProductId);
+
+                        if (!products.ContainsKey(product.Id))
+                        {
+                            products.Add(product.Id, product);
+                        }
+                    }
+                }
+            }
+        }
+
+
+#if UNITY_EDITOR
+        [CustomEditor(typeof(GameManager))]
+        public class GameManagerEditor : Editor
+        {
+            public override void OnInspectorGUI()
+            {
+                DrawDefaultInspector();
+
+                GameManager manager = (GameManager)target;
+
+                if (EditorApplication.isPlaying)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+                    EditorGUILayout.Space();
+
+                    if (manager.CanAddEmployee && manager.NextEmployee != null)
+                        if (GUILayout.Button($"Hire Employee (${manager.NextEmployee.Price})"))
+                        {
+                            manager.HireEmployee();
+                        }
+
+                    if (manager.CanAddAppliance && manager.NextAppliance != null)
+                    {
+                        if (GUILayout.Button($"Buy Appliance (${manager.NextAppliance.Price})"))
+                        {
+                            manager.BuyAppliance();
+                        }
+                    }
+
+                    if (manager.appliances != null)
+                    {
+                        for (int i = 0; i < manager.appliances.Length; i++)
+                        {
+                            var appliance = manager.appliances[i];
+
+                            if (appliance.CanLevelUp)
+                            {
+                                if (GUILayout.Button($"{appliance.name} [{i}] - Level UP (${appliance.NextLevelPrice})"))
+                                {
+                                    manager.LevelUpAppliance(i);
+                                }
+
+                            }
+                        }
+                    }
+
+                    if (manager.CanAddDecoration && manager.NextDecoration != null)
+                    {
+                        if (GUILayout.Button($"Buy Decoration (${manager.NextDecoration.Price})"))
+                        {
+                            manager.BuyDecoration();
+                        }
+                    }
+
+                }
+#endif
+            }
+        }
+    }
 }

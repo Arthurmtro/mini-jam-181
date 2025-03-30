@@ -1,5 +1,4 @@
 using System;
-using System.Data.Common;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,6 +34,6 @@ namespace BunnyCoffee
         public int Count => products.Length;
         public Product[] All => products;
         public Product AtIndex(int index) => products[index];
-
+        public Product ById(string id) => Array.Find(products, type => type.Id == id);
     }
 }

@@ -13,7 +13,15 @@ MonoBehaviour:
   m_Name: Products
   m_EditorClassIdentifier: Assembly-CSharp:BunnyCoffee:ProductCollection
   products:
-  - Id: coffee-1
+  - Id: coffee-latte
     Name: Latte
+    Price: 3
+    View: {fileID: 0}
+  - Id: coffee-americano
+    Name: Americano
+    Price: 2
+    View: {fileID: 0}
+  - Id: bakery-croissant
+    Name: Croissant
     Price: 1
     View: {fileID: 0}

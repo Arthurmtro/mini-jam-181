@@ -45,7 +45,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.25
-  m_Speed: 15
+  m_Speed: 7
   m_Acceleration: 1000
   avoidancePriority: 50
   m_AngularSpeed: 0
@@ -156,7 +156,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: 99f277c58a93749649c285dcbb24dc4c, type: 2}
     - target: {fileID: 3626916397498700004, guid: b11f3ddfde3764784916cfcdffe38754, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: b11f3ddfde3764784916cfcdffe38754, type: 3}
       propertyPath: m_LocalPosition.x

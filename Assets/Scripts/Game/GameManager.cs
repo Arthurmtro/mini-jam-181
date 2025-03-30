@@ -15,7 +15,7 @@ namespace BunnyCoffee
 {
     public class GameManager : MonoBehaviour
     {
-        const int MaxEmployees = 3;
+        const int MaxEmployees = 2;
         const int MaxCustomers = 40;
         // seconds after the controllers are updated - to avoid too many irrelevant updates
         const float processEvery = 0.1f;

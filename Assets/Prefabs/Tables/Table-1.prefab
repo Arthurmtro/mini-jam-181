@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 2030909634046696636}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.38, y: 1.506, z: 0}
+  m_LocalPosition: {x: 0.08, y: 1.11, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -96,7 +96,7 @@ PrefabInstance:
       objectReference: {fileID: 6428859568698015782, guid: 5220dcc45fd954571b66dccff2de3918, type: 3}
     - target: {fileID: 3626916397498700004, guid: 71a6379fe7d764f32a02697a484d96b3, type: 3}
       propertyPath: m_SortingOrder
-      value: 3
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 71a6379fe7d764f32a02697a484d96b3, type: 3}
       propertyPath: m_LocalScale.x
@@ -108,11 +108,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 71a6379fe7d764f32a02697a484d96b3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.247
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 71a6379fe7d764f32a02697a484d96b3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.819
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 71a6379fe7d764f32a02697a484d96b3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -196,17 +196,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.41648102, y: 0.06590128}
+  m_Offset: {x: -0.009344101, y: -0.62122536}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.46938774, y: -0.275}
+    pivot: {x: 0.46938774, y: 0.52500004}
     oldSize: {x: 3.0625, y: 2.5}
     newSize: {x: 2.3125, y: 2.21875}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.5758057, y: 1.2047243}
+  m_Size: {x: 2.0007057, y: 1.0974197}
   m_EdgeRadius: 0
 --- !u!114 &8931101606051641002
 MonoBehaviour:

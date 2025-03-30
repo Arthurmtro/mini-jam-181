@@ -15,7 +15,7 @@ MonoBehaviour:
   products:
   - Id: coffee-latte
     Name: Latte
-    Price: 3
+    Price: 500
     View: {fileID: 0}
   - Id: coffee-americano
     Name: Americano

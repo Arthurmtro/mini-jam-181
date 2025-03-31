@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BunnyCoffee
 {
     [Serializable]
-    public struct ApplianceTypeProduct
+    public class ApplianceTypeProduct
     {
         public string ProductId;
         public Product.Quality MinQuality;
@@ -15,7 +15,7 @@ namespace BunnyCoffee
     }
 
     [Serializable]
-    public struct ApplianceTypeLevel
+    public class ApplianceTypeLevel
     {
         public string Name;
         public int Price;
@@ -23,7 +23,7 @@ namespace BunnyCoffee
     }
 
     [Serializable]
-    public struct ApplianceType
+    public class ApplianceType
     {
         public string Id;
         public string Name;
@@ -34,7 +34,7 @@ namespace BunnyCoffee
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    [CreateAssetMenu(menuName = "BunnyCoffee/ApplianceType")]
+    [CreateAssetMenu(fileName = "Assets/Collections/Appliances.asset", menuName = "BunnyCoffee/ApplianceType")]
     public class ApplianceTypeCollection : ScriptableObject
     {
         [SerializeField] private ApplianceType[] types = Array.Empty<ApplianceType>();

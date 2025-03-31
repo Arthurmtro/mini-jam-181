@@ -106,7 +106,7 @@ namespace BunnyCoffee
 
             for (int i = 0; i < MaxCustomers; i++)
             {
-                CustomerType randomCustomerType = resources.CustomerTypes.AtIndex(UnityEngine.Random.Range(0, resources.CustomerTypes.Count));
+                CustomerType randomCustomerType = resources.CustomerAtIndex(UnityEngine.Random.Range(0, resources.CustomerCount));
                 GameObject newCustomer = Instantiate(randomCustomerType.Controller.gameObject, customersContainer);
                 newCustomer.name = $"[{i}] Customer (Type={randomCustomerType.Name})";
                 newCustomer.transform.position = GetInactivePosition(customerInactivePosition.position, i);
@@ -477,14 +477,14 @@ namespace BunnyCoffee
                     continue;
                 }
 
-                ApplianceType type = resources.ApplianceTypes.ById(appliance.TypeId);
+                ApplianceType type = resources.ApplianceById(appliance.TypeId);
                 for (int i = 0; i < type.Levels.Length && i <= appliance.Level; i++)
                 {
                     ApplianceTypeLevel level = type.Levels[i];
 
                     foreach (ApplianceTypeProduct levelProduct in level.Products)
                     {
-                        Product product = resources.ProductTypes.ById(levelProduct.ProductId);
+                        Product product = resources.ProductById(levelProduct.ProductId);
 
                         if (!products.ContainsKey(product.Id))
                         {

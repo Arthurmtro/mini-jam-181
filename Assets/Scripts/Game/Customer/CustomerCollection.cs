@@ -22,7 +22,7 @@ namespace BunnyCoffee
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    [CreateAssetMenu(menuName = "BunnyCoffee/CustomerType")]
+    [CreateAssetMenu(fileName = "Assets/Collections/Customers.asset", menuName = "BunnyCoffee/CustomerType")]
     public class CustomerTypeCollection : ScriptableObject
     {
         [SerializeField] private CustomerType[] types = Array.Empty<CustomerType>();

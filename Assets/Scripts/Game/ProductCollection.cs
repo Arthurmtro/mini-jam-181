@@ -26,7 +26,7 @@ namespace BunnyCoffee
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    [CreateAssetMenu(menuName = "BunnyCoffee/Product")]
+    [CreateAssetMenu(fileName = "Assets/Config/Products.asset", menuName = "BunnyCoffee/Product")]
     public class ProductCollection : ScriptableObject
     {
         [SerializeField] private Product[] products = Array.Empty<Product>();

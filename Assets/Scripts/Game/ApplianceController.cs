@@ -32,10 +32,10 @@ namespace BunnyCoffee
         public string TypeId;
         private ApplianceType type;
         public int Level;
-        private ApplianceTypeLevel? CurrentLevel => type.Levels != null && Level < type.Levels.Length ? type.Levels[Level] : null;
-        private ApplianceTypeLevel? NextLevel => Level + 1 < type.Levels.Length ? type.Levels[Level + 1] : null;
-        public bool CanLevelUp => IsActive && NextLevel.HasValue;
-        public int NextLevelPrice => NextLevel != null ? NextLevel.Value.Price : 0;
+        private ApplianceTypeLevel CurrentLevel => type.Levels != null && Level < type.Levels.Length ? type.Levels[Level] : null;
+        private ApplianceTypeLevel NextLevel => Level + 1 < type.Levels.Length ? type.Levels[Level + 1] : null;
+        public bool CanLevelUp => IsActive && NextLevel != null;
+        public int NextLevelPrice => NextLevel != null ? NextLevel.Price : 0;
 
         public bool IsActive { get; private set; }
 
@@ -47,11 +47,13 @@ namespace BunnyCoffee
 
         void Awake()
         {
-            type = resources.ApplianceTypes.ById(TypeId);
+            // type = resources.ApplianceById(TypeId);
+            // Debug.Log(type);
         }
 
         void Start()
         {
+            type = resources.ApplianceById(TypeId);
             view.gameObject.SetActive(false);
         }
 

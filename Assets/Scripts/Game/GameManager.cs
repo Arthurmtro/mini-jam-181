@@ -63,6 +63,7 @@ namespace BunnyCoffee
         int NextDecorationIndex => Array.FindIndex(decorations, decoration => !decoration.IsActive);
         DecorationController NextDecoration => Array.Find(decorations, decoration => !decoration.IsActive);
         bool CanAddDecoration => NextDecorationIndex >= 0 && NextDecorationIndex < decorations.Length;
+        int NumActiveDecorations => decorations != null ? decorations.Where(decoration => decoration.IsActive).Sum(decoration => 1) : 0;
 
         readonly CustomerController[] customers = new CustomerController[MaxCustomers];
         int lastCustomerIndex = 0;
@@ -70,6 +71,8 @@ namespace BunnyCoffee
         float NextTimeToCustomer => baseTimeToCustomer / NumActiveEmployees;
         float timeToCustomer = baseTimeToCustomer;
         float accumulatedDelta = 0;
+
+        float PriceMultiplier => NumActiveDecorations == decorations.Length ? 5f : 1f + 0.25f * NumActiveDecorations;
 
         void Start()
         {
@@ -361,7 +364,7 @@ namespace BunnyCoffee
 
         public void CompleteProduct(Product product)
         {
-            gameState.AddMoney(product.Price);
+            gameState.AddMoney((int)(product.Price * PriceMultiplier));
             UpdateUI();
         }
 
@@ -396,16 +399,14 @@ namespace BunnyCoffee
         public void LevelUpAppliance()
         {
             ApplianceController nextApplianceToLevelUp = NextApplianceToLevelUp;
-            if (nextApplianceToLevelUp == null || !CanLevelUpAnyAppliance || nextApplianceToLevelUp.Price > gameState.GameState.Money)
+            if (nextApplianceToLevelUp == null || !CanLevelUpAnyAppliance || nextApplianceToLevelUp.NextLevelPrice > gameState.GameState.Money)
             {
                 return;
             }
 
-            int price = nextApplianceToLevelUp.Price;
+            int price = nextApplianceToLevelUp.NextLevelPrice;
             nextApplianceToLevelUp.LevelUp();
             string levels = string.Join(",", appliances.Where(appliance => appliance.IsActive).Select(appliance => appliance.Level.ToString()));
-
-            Debug.Log(levels);
 
             gameState.UpdateApplianceLevels(levels, price);
             UpdateUI();
@@ -506,8 +507,8 @@ namespace BunnyCoffee
             string appliancePrice = NextAppliance != null ? NextAppliance.Price.ToString() : "-";
             ui.UpdateBuyApplianceButton(gameState.GameState.ApplianceLevels.Length, appliancePrice, !isApplianceEnabled);
 
-            bool isApplianceUpgradeEnabled = CanLevelUpAnyAppliance && NextApplianceToLevelUp != null && NextApplianceToLevelUp.Price <= gameState.GameState.Money;
-            string applianceUpgradePrice = NextApplianceToLevelUp != null ? NextApplianceToLevelUp.Price.ToString() : "-";
+            bool isApplianceUpgradeEnabled = CanLevelUpAnyAppliance && NextApplianceToLevelUp != null && NextApplianceToLevelUp.NextLevelPrice <= gameState.GameState.Money;
+            string applianceUpgradePrice = NextApplianceToLevelUp != null ? NextApplianceToLevelUp.NextLevelPrice.ToString() : "-";
             ui.UpdateUpgradeApplianceButton(TotalApplianceLevel, applianceUpgradePrice, !isApplianceUpgradeEnabled);
 
             bool isDecorationEnabled = CanAddDecoration && NextDecoration != null && NextDecoration.Price <= gameState.GameState.Money;

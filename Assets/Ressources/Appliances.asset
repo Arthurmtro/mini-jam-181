@@ -18,18 +18,14 @@ MonoBehaviour:
     Price: 150
     Levels:
     - Name: Level 1
-      Price: 250
+      Price: 100
       Products:
       - ProductId: coffee-latte
         MinQuality: 0
         MaxQuality: 1
         Duration: 5
-      - ProductId: coffee-americano
-        MinQuality: 0
-        MaxQuality: 1
-        Duration: 4
     - Name: Level 2
-      Price: 500
+      Price: 50
       Products:
       - ProductId: coffee-latte
         MinQuality: 1
@@ -39,18 +35,48 @@ MonoBehaviour:
         MinQuality: 1
         MaxQuality: 2
         Duration: 3
-      - ProductId: coffee-expensive
-        MinQuality: 1
-        MaxQuality: 2
-        Duration: 4
-  - Id: bakery
-    Name: Bakery
-    Price: 150
-    Levels:
-    - Name: Level 1
-      Price: 250
+    - Name: Level 3
+      Price: 100
       Products:
-      - ProductId: bakery-croissant
-        MinQuality: 0
-        MaxQuality: 1
+      - ProductId: coffee-latte
+        MinQuality: 2
+        MaxQuality: 4
+        Duration: 3
+      - ProductId: coffee-americano
+        MinQuality: 2
+        MaxQuality: 4
+        Duration: 2
+      - ProductId: coffee-expensive
+        MinQuality: 2
+        MaxQuality: 4
+        Duration: 4
+    - Name: Level 4
+      Price: 200
+      Products:
+      - ProductId: coffee-latte
+        MinQuality: 4
+        MaxQuality: 5
+        Duration: 2
+      - ProductId: coffee-americano
+        MinQuality: 4
+        MaxQuality: 5
+        Duration: 1
+      - ProductId: coffee-expensive
+        MinQuality: 4
+        MaxQuality: 5
+        Duration: 3
+    - Name: Level 5
+      Price: 400
+      Products:
+      - ProductId: coffee-latte
+        MinQuality: 5
+        MaxQuality: 5
+        Duration: 1
+      - ProductId: coffee-americano
+        MinQuality: 5
+        MaxQuality: 5
+        Duration: 1
+      - ProductId: coffee-expensive
+        MinQuality: 5
+        MaxQuality: 5
         Duration: 2

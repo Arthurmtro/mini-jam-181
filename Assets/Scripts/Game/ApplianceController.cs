@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,6 +22,7 @@ namespace BunnyCoffee
         [Header("View")]
         [SerializeField] Transform view;
         [SerializeField] ParticleSystem particles;
+        [SerializeField] ParticleSystem levelUpParticles;
 
         [Header("Position")]
         public Transform EmployeePosition;
@@ -67,6 +67,11 @@ namespace BunnyCoffee
             Reset();
             IsActive = true;
             view.gameObject.SetActive(true);
+
+            if (levelUpParticles != null)
+            {
+                levelUpParticles.Play();
+            }
         }
 
         public void Deactivate()
@@ -101,6 +106,11 @@ namespace BunnyCoffee
             if (!CanLevelUp)
             {
                 return;
+            }
+
+            if (levelUpParticles != null)
+            {
+                levelUpParticles.Play();
             }
 
             Level++;

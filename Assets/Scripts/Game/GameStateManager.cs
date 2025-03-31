@@ -18,7 +18,7 @@ namespace BunnyCoffee
         public int[] ApplianceLevels => ApplianceLevelsString.Split(',').ToArray().Select(int.Parse).ToArray();
         public int NumDecorations;
 
-        public GameState(int money = 0, int numEmployees = 1, string applianceLevelsString = "0", int numDecorations = 0)
+        public GameState(int money = 32, int numEmployees = 1, string applianceLevelsString = "0", int numDecorations = 0)
         {
             Money = money;
             NumEmployees = numEmployees;
@@ -29,7 +29,7 @@ namespace BunnyCoffee
 
     public class GameStateManager : MonoBehaviour
     {
-        GameState gameState = new(0, 1, "0", 0);
+        GameState gameState = new(32, 1, "0", 0);
         public GameState GameState => gameState;
 
         const string SaveDataKey = "game.saveData.v3";
@@ -76,7 +76,7 @@ namespace BunnyCoffee
         void Reset()
         {
             PlayerPrefs.DeleteKey(SaveDataKey);
-            gameState = new GameState(0, 1, "0", 0);
+            gameState = new GameState(32, 1, "0", 0);
         }
 
         void Load()

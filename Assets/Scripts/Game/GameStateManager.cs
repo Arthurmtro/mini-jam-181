@@ -101,6 +101,7 @@ namespace BunnyCoffee
             PlayerPrefs.SetString(SaveDataKey, json);
         }
 
+#if UNITY_EDITOR
         void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
@@ -118,6 +119,7 @@ namespace BunnyCoffee
                 centeredStyle
             );
         }
+#endif
 
 #if UNITY_EDITOR
         [CustomEditor(typeof(GameStateManager))]
@@ -141,8 +143,8 @@ namespace BunnyCoffee
                     }
                 }
             }
-#endif
         }
+#endif
 
     }
 }

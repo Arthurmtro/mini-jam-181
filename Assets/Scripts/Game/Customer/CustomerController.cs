@@ -457,6 +457,7 @@ namespace BunnyCoffee
             RemainingTime = Mathf.Max(0, RemainingTime - deltaTime);
         }
 
+#if UNITY_EDITOR
         void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
@@ -473,5 +474,6 @@ namespace BunnyCoffee
                 Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name, centeredStyle);
             }
         }
+#endif
     }
 }

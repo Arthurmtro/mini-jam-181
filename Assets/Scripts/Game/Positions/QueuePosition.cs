@@ -23,7 +23,9 @@ public class QueuePosition : MonoBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
+#if UNITY_EDITOR
         Handles.Label(transform.position + 1.25f * Vector3.up, Index.ToString());
+#endif
         if (customerTransform != null)
         {
             Gizmos.color = IsBusy ? Color.red : Color.yellow;

@@ -69,7 +69,7 @@ namespace BunnyCoffee
         int lastCustomerIndex = 0;
 
         float NextTimeToCustomer => baseTimeToCustomer / NumActiveEmployees;
-        float timeToCustomer = baseTimeToCustomer;
+        float timeToCustomer = 0f;
         float accumulatedDelta = 0;
 
         float PriceMultiplier => NumActiveDecorations == decorations.Length ? 5f : 1f + 0.25f * NumActiveDecorations;
@@ -464,7 +464,7 @@ namespace BunnyCoffee
             int x = index / gridSize;
             int y = index % gridSize;
 
-            return new Vector3(basePosition.x + x * distance, basePosition.y + y * distance, basePosition.z);
+            return new Vector3(basePosition.x + x * distance, basePosition.y - y * distance, basePosition.z);
         }
 
         void CalculateAllProducts()

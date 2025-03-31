@@ -224,6 +224,18 @@ namespace BunnyCoffee
             RemainingTime = TimeToEnjoyOrder;
             animations.SetValues(false, true);
             animations.HideBubble();
+
+            if (Table != null)
+            {
+                if (product?.Id == "coffee-latte")
+                {
+                    Table.ShowProduct(TableProduct.Coffee1);
+                }
+                else
+                {
+                    Table.ShowProduct(TableProduct.Coffee2);
+                }
+            }
         }
 
         public void StartReviewingOrder()
@@ -232,6 +244,10 @@ namespace BunnyCoffee
             RemainingTime = TimeToReviewOrder;
             animations.SetValues(false, false);
             animations.ShowBubble(BubbleType.Happy);
+            if (Table != null)
+            {
+                Table.HideProduct();
+            }
         }
 
         public void StartLeaving()

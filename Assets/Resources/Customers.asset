@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd9efa3e117924d83a65de8fb7a47d3b, type: 3}
+  m_Name: Customers
+  m_EditorClassIdentifier: 
+  types:
+  - Id: bull-1
+    Name: Bull
+    MinWaitTime: 10
+    MaxWaitTime: 20
+    MinQuality: 0
+    Controller: {fileID: 6866242554866685499, guid: f4cbf99e0e8234933b3db7f2253356e7, type: 3}
+  - Id: bull-2
+    Name: Bull 2
+    MinWaitTime: 10
+    MaxWaitTime: 20
+    MinQuality: 0
+    Controller: {fileID: 6866242554866685499, guid: 5363e3f653ba74c9abb90387a30d4150, type: 3}
+  - Id: sheep-1
+    Name: 'Sheep '
+    MinWaitTime: 10
+    MaxWaitTime: 20
+    MinQuality: 0
+    Controller: {fileID: 8954177459892228565, guid: 7fd3b79400c9f41b5bd02822eef8b5c1, type: 3}

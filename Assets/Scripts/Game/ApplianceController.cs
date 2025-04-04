@@ -32,7 +32,7 @@ namespace BunnyCoffee
         public string TypeId;
         private ApplianceType type;
         public int Level;
-        private ApplianceTypeLevel CurrentLevel => type.Levels != null && Level < type.Levels.Length ? type.Levels[Level] : null;
+        private ApplianceTypeLevel CurrentLevel => type != null && type.Levels != null && Level < type.Levels.Length ? type.Levels[Level] : null;
         private ApplianceTypeLevel NextLevel => Level + 1 < type.Levels.Length ? type.Levels[Level + 1] : null;
         public bool CanLevelUp => IsActive && NextLevel != null;
         public int NextLevelPrice => NextLevel != null ? NextLevel.Price : 0;
@@ -44,12 +44,6 @@ namespace BunnyCoffee
         public bool IsFree => IsActive && Status == ApplianceStatus.Idle && !IsBusy;
 
         public float RemainingTime { get; private set; }
-
-        void Awake()
-        {
-            // type = resources.ApplianceById(TypeId);
-            // Debug.Log(type);
-        }
 
         void Start()
         {
@@ -208,7 +202,11 @@ namespace BunnyCoffee
                 alignment = TextAnchor.MiddleCenter
             };
             Handles.Label(transform.position + 1.25f * Vector3.up, Status.ToString(), centeredStyle);
-            Handles.Label(transform.position - 1.25f * Vector3.up, $"{type.Name} ({CurrentLevel?.Name ?? "-"})", centeredStyle);
+
+            if (CurrentLevel != null)
+            {
+                Handles.Label(transform.position - 1.25f * Vector3.up, $"{type.Name} ({CurrentLevel?.Name ?? "-"})", centeredStyle);
+            }
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireCube(transform.position, 1.25f * Vector3.one);
             Gizmos.color = !IsFree ? Color.red : Color.magenta;

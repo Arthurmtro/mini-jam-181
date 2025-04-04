@@ -18,6 +18,7 @@ namespace BunnyCoffee
         const float baseTimeToCustomer = 7.5f;
 
         [Header("State")]
+        [SerializeField] bool ShowIntro = true;
         [SerializeField] bool IsActive = false;
 
         [Header("Resources")]
@@ -38,6 +39,7 @@ namespace BunnyCoffee
         BarPosition[] barPositions;
 
         [Header("Controllers")]
+        [SerializeField] SpriteOrderManager spriteOrderManager;
         [SerializeField] EmployeeController[] employeeControllers;
         [SerializeField] Transform tablesContainer;
         TableController[] tableControllers;
@@ -128,9 +130,19 @@ namespace BunnyCoffee
                 AddDecoration();
             }
 
+            spriteOrderManager.Initialize();
             CalculateAllProducts();
             ui.SetShowBackdrop(false);
-            ui.SetShowIntro(true);
+
+            if (ShowIntro)
+            {
+                ui.SetShowIntro(true);
+            }
+            else
+            {
+                StartGame();
+            }
+
             UpdateUI();
         }
 

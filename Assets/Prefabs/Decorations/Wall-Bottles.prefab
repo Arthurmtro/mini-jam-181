@@ -17,7 +17,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6322216746733662666
 Transform:
@@ -126,7 +126,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5259725460408208100
 Transform:
@@ -159,9 +159,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: bottle_1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: -2253911629886400664, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_SortingOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1986090867
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_LocalPosition.x
@@ -225,9 +237,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: furniture_1
       objectReference: {fileID: 0}
+    - target: {fileID: -2253911629886400664, guid: ab2cefece09814b27a1cf7d89daecdce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: ab2cefece09814b27a1cf7d89daecdce, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: ab2cefece09814b27a1cf7d89daecdce, type: 3}
       propertyPath: m_SortingOrder
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: ab2cefece09814b27a1cf7d89daecdce, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1986090867
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: ab2cefece09814b27a1cf7d89daecdce, type: 3}
       propertyPath: m_LocalPosition.x
@@ -295,6 +319,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Particle System
       objectReference: {fileID: 0}
+    - target: {fileID: 4383625090923421182, guid: 522f1dd0dd35c4c55b16934bdb23fd86, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 8542148124575632624, guid: 522f1dd0dd35c4c55b16934bdb23fd86, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -357,9 +385,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: bottle_1
       objectReference: {fileID: 0}
+    - target: {fileID: -2253911629886400664, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_SortingOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1986090867
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_LocalPosition.x
@@ -423,9 +463,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: bottle_1 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: -2253911629886400664, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_SortingOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1986090867
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_LocalPosition.x

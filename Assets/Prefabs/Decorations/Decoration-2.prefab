@@ -17,7 +17,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3309239012587503265
 Transform:
@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1032dc261d08f4572bbe45304cec048c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  particles: {fileID: 0}
+  price: 0
 --- !u!114 &5536856783108858789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,9 +123,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: bottle_1
       objectReference: {fileID: 0}
+    - target: {fileID: -2253911629886400664, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayer
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_SortingOrder
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 771042a288d81432cb08b1017f825018, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 214792289
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 771042a288d81432cb08b1017f825018, type: 3}
       propertyPath: m_LocalPosition.x

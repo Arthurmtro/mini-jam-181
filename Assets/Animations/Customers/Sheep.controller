@@ -84,7 +84,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: sheep_walk_Clip
+  m_Name: SheepWalk_Clip
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -99,7 +99,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7899178360360585216, guid: 5074bd741ea49435e814702bd8a0de3e, type: 3}
+  m_Motion: {fileID: 1243893562358485939, guid: cb8a902bf420d4d3a9b7cb93b88af4f3, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -292,7 +292,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: sheep_idle_Clip
+  m_Name: SheepIdle_Clip
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -306,7 +306,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -477063900251022409, guid: f7e2ef9a89ff64df4b4927e3fed9317f, type: 3}
+  m_Motion: {fileID: -5765611838162223614, guid: ee0574e54c7e148c4810d7ca63cad7d0, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -542,7 +542,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: sheep_sit_Clip
+  m_Name: SheepSit_Clip
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -557,7 +557,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 2893400346460952632, guid: 4246ac719f33d492b9005d6c5d963ebc, type: 3}
+  m_Motion: {fileID: 8628544638075882876, guid: b4f2859bb35e94be6ae9c973c0153f3e, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

@@ -125,7 +125,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: counter_2_face
     originalName: 
-    pivot: {x: 0.5, y: -0.23333333}
+    pivot: {x: 0.48129085, y: -0.001393946}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 

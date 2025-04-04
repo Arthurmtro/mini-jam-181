@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace BunnyCoffee
@@ -15,8 +14,8 @@ namespace BunnyCoffee
         public Transform CustomerPosition;
 
         [Header("Products")]
-        [SerializeField] Transform productCoffee1;
-        [SerializeField] Transform productCoffee2;
+        [SerializeField] SpriteRenderer productCoffee1;
+        [SerializeField] SpriteRenderer productCoffee2;
         [SerializeField] ParticleSystem particles;
 
         public bool IsBusy { get; private set; }
@@ -36,10 +35,10 @@ namespace BunnyCoffee
             switch (product)
             {
                 case TableProduct.Coffee1:
-                    productCoffee1.gameObject.SetActive(true);
+                    productCoffee1.sortingLayerName = "Main 1";
                     break;
                 case TableProduct.Coffee2:
-                    productCoffee2.gameObject.SetActive(true);
+                    productCoffee2.sortingLayerName = "Main 1";
                     break;
             }
 
@@ -48,8 +47,8 @@ namespace BunnyCoffee
 
         public void HideProduct()
         {
-            productCoffee1.gameObject.SetActive(false);
-            productCoffee2.gameObject.SetActive(false);
+            productCoffee1.sortingLayerName = "Default";
+            productCoffee2.sortingLayerName = "Default";
             particles.Stop();
         }
 
@@ -60,10 +59,8 @@ namespace BunnyCoffee
                 return;
             }
 
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireCube(transform.position, 2f * Vector3.one);
             Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(CustomerPosition.position, 0.5f);
+            Gizmos.DrawSphere(CustomerPosition.position, 0.25f);
         }
     }
 }

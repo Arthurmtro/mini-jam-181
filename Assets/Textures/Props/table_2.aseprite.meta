@@ -125,7 +125,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: table_2
     originalName: 
-    pivot: {x: 0.46938774, y: 0.52500004}
+    pivot: {x: 0.49903706, y: 0.15224008}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 

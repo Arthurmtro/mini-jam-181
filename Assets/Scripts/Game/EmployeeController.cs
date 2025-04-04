@@ -337,22 +337,17 @@ namespace BunnyCoffee
         {
             RemainingTime = Mathf.Max(0, RemainingTime - deltaTime);
         }
-#if UNITY_EDITOR
+
         void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(transform.position, 0.15f);
-            GUIStyle centeredStyle = new GUIStyle(GUI.skin.label)
-            {
-                alignment = TextAnchor.MiddleCenter
-            };
-            Handles.Label(transform.position + 1f * Vector3.up, Status.ToString(), centeredStyle);
 
+            GizmosUtils.DrawCenteredText(transform.position + 1f * Vector3.up, Status.ToString());
             if (product.HasValue)
             {
-                Handles.Label(transform.position + 1f * Vector3.down, product.Value.Name, centeredStyle);
+                GizmosUtils.DrawCenteredText(transform.position + 1f * Vector3.down, product.Value.Name);
             }
         }
-#endif
     }
 }

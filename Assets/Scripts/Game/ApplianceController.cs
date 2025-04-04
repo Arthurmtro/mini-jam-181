@@ -197,20 +197,15 @@ namespace BunnyCoffee
                 return;
             }
 
-            GUIStyle centeredStyle = new GUIStyle(GUI.skin.label)
-            {
-                alignment = TextAnchor.MiddleCenter
-            };
-            Handles.Label(transform.position + 1.25f * Vector3.up, Status.ToString(), centeredStyle);
-
+            GizmosUtils.DrawCenteredText(transform.position + 1.25f * Vector3.up, Status.ToString());
             if (CurrentLevel != null)
             {
-                Handles.Label(transform.position - 1.25f * Vector3.up, $"{type.Name} ({CurrentLevel?.Name ?? "-"})", centeredStyle);
+                GizmosUtils.DrawCenteredText(transform.position - 1.25f * Vector3.up, $"{type.Name} ({CurrentLevel?.Name ?? "-"})");
             }
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireCube(transform.position, 1.25f * Vector3.one);
             Gizmos.color = !IsFree ? Color.red : Color.magenta;
-            Gizmos.DrawSphere(EmployeePosition.position, 1f);
+            Gizmos.DrawSphere(EmployeePosition.position, 0.25f);
         }
 #endif
     }

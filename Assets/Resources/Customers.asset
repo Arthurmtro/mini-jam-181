@@ -24,7 +24,7 @@ MonoBehaviour:
     MinWaitTime: 10
     MaxWaitTime: 20
     MinQuality: 0
-    Controller: {fileID: 6866242554866685499, guid: 5363e3f653ba74c9abb90387a30d4150, type: 3}
+    Controller: {fileID: 6866242554866685499, guid: f4cbf99e0e8234933b3db7f2253356e7, type: 3}
   - Id: sheep-1
     Name: 'Sheep '
     MinWaitTime: 10

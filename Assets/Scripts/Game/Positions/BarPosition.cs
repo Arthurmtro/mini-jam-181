@@ -25,18 +25,16 @@ namespace BunnyCoffee
 
         void OnDrawGizmos()
         {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireCube(transform.position, 2f * Vector3.one);
             if (employeeTransform != null)
             {
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawSphere(EmployeePosition, 1f);
+                Gizmos.DrawSphere(EmployeePosition, 0.25f);
             }
 
             if (customerTransform != null)
             {
                 Gizmos.color = IsBusy ? Color.red : Color.yellow;
-                Gizmos.DrawSphere(CustomerPosition, 1f);
+                Gizmos.DrawSphere(CustomerPosition, 0.25f);
             }
         }
     }

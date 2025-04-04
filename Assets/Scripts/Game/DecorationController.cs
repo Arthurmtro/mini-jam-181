@@ -46,7 +46,7 @@ namespace BunnyCoffee
         void OnDrawGizmos()
         {
             Gizmos.color = Color.cyan;
-            Gizmos.DrawSphere(realPosition, 0.25f);
+            Gizmos.DrawSphere(realPosition, 0.15f);
         }
     }
 }

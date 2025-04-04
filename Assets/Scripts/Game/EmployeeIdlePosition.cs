@@ -26,7 +26,7 @@ namespace BunnyCoffee
             if (employeeTransform != null)
             {
                 Gizmos.color = IsBusy ? Color.red : Color.magenta;
-                Gizmos.DrawSphere(EmployeePosition, 1f);
+                Gizmos.DrawSphere(EmployeePosition, 0.25f);
             }
         }
     }

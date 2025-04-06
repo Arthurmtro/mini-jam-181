@@ -2,25 +2,16 @@ using UnityEngine;
 
 namespace BunnyCoffee
 {
-    public enum BubbleType
-    {
-        Thinking,
-        Coffee1,
-        Coffee2,
-        Coin,
-        Happy,
-    }
-
     public class CustomerAnimationController : MonoBehaviour
     {
         [Header("Params")]
         [SerializeField] Animator animator;
-        [SerializeField] SpriteRenderer spriteBubbleIcon;
-        [SerializeField] Transform iconThinking;
-        [SerializeField] Transform iconCoffee1;
-        [SerializeField] Transform iconCoffee2;
-        [SerializeField] Transform iconCoin;
-        [SerializeField] Transform iconHappy;
+        [SerializeField] BubbleController bubble;
+
+        void Start()
+        {
+            HideBubble();
+        }
 
         public void SetWalking(bool value)
         {
@@ -38,44 +29,14 @@ namespace BunnyCoffee
             SetSitting(isSitting);
         }
 
-        public void ShowBubble(Sprite image)
-        {
-            spriteBubbleIcon.sprite = image;
-            animator.SetBool("ShowBubble", true);
-        }
-
         public void ShowBubble(BubbleType type)
         {
-            spriteBubbleIcon.sprite = null;
-            iconThinking.gameObject.SetActive(false);
-            iconCoffee1.gameObject.SetActive(false);
-            iconCoffee2.gameObject.SetActive(false);
-            iconCoin.gameObject.SetActive(false);
-            iconHappy.gameObject.SetActive(false);
-            switch (type)
-            {
-                case BubbleType.Thinking:
-                    iconThinking.gameObject.SetActive(true);
-                    break;
-                case BubbleType.Coffee1:
-                    iconCoffee1.gameObject.SetActive(true);
-                    break;
-                case BubbleType.Coffee2:
-                    iconCoffee2.gameObject.SetActive(true);
-                    break;
-                case BubbleType.Coin:
-                    iconCoin.gameObject.SetActive(true);
-                    break;
-                case BubbleType.Happy:
-                    iconHappy.gameObject.SetActive(true);
-                    break;
-            }
+            bubble.ShowBubble(type);
             animator.SetBool("ShowBubble", true);
         }
 
         public void HideBubble()
         {
-            spriteBubbleIcon.sprite = null;
             animator.SetBool("ShowBubble", false);
         }
     }

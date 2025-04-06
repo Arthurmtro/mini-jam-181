@@ -125,7 +125,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: Bubble
     originalName: 
-    pivot: {x: 0.45833334, y: 0.56}
+    pivot: {x: 0.46887776, y: 0.020128956}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 

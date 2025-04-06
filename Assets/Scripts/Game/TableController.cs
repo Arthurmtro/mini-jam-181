@@ -35,10 +35,10 @@ namespace BunnyCoffee
             switch (product)
             {
                 case TableProduct.Coffee1:
-                    productCoffee1.sortingLayerName = "Main 1";
+                    SpriteUtils.Show(productCoffee1);
                     break;
                 case TableProduct.Coffee2:
-                    productCoffee2.sortingLayerName = "Main 1";
+                    SpriteUtils.Show(productCoffee2);
                     break;
             }
 
@@ -47,8 +47,8 @@ namespace BunnyCoffee
 
         public void HideProduct()
         {
-            productCoffee1.sortingLayerName = "Default";
-            productCoffee2.sortingLayerName = "Default";
+            SpriteUtils.Hide(productCoffee1);
+            SpriteUtils.Hide(productCoffee2);
             particles.Stop();
         }
 

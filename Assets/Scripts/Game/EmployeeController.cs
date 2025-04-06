@@ -46,6 +46,8 @@ namespace BunnyCoffee
         void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            agent.updateRotation = false;
+            agent.updateUpAxis = false;
         }
 
         public void Reset()

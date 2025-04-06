@@ -13,6 +13,18 @@ namespace BunnyCoffee
             HideBubble();
         }
 
+        public void Stop()
+        {
+            animator.speed = 0;
+            animator.StartPlayback();
+        }
+
+        public void Play()
+        {
+            animator.speed = 1;
+            animator.StopPlayback();
+        }
+
         public void SetWalking(bool value)
         {
             animator.SetBool("IsWalking", value);

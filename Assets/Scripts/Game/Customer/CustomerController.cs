@@ -32,7 +32,6 @@ namespace BunnyCoffee
         [SerializeField] float TimeToReceiveOrder = 1;
         [SerializeField] float TimeToEnjoyOrder = 15;
         [SerializeField] float TimeToReviewOrder = 2;
-        [SerializeField] Sprite spriteThinking;
 
         public bool IsActive { get; private set; }
         public CustomerStatus Status;
@@ -63,6 +62,7 @@ namespace BunnyCoffee
         void Start()
         {
             inactivePosition = transform.position;
+            animations.Stop();
         }
 
         public void Reset()
@@ -77,12 +77,14 @@ namespace BunnyCoffee
             Reset();
             IsActive = false;
             agent.isStopped = true;
+            animations.Stop();
         }
 
         public void ActivateToQueue(QueuePosition queuePosition)
         {
             Reset();
             IsActive = true;
+            animations.Play();
             agent.isStopped = false;
             Status = CustomerStatus.MovingToQueue;
             StartMovingToQueue(queuePosition);
@@ -92,6 +94,7 @@ namespace BunnyCoffee
         {
             Reset();
             IsActive = true;
+            animations.Play();
             Status = CustomerStatus.MovingToBar;
             agent.isStopped = false;
             StartMovingToBar(barPosition);

@@ -189,7 +189,6 @@ namespace BunnyCoffee
             return Array.Find(CurrentLevel?.Products, product => product.ProductId == productId);
         }
 
-#if UNITY_EDITOR
         void OnDrawGizmos()
         {
             if (EmployeePosition == null)
@@ -207,6 +206,5 @@ namespace BunnyCoffee
             Gizmos.color = !IsFree ? Color.red : Color.magenta;
             Gizmos.DrawSphere(EmployeePosition.position, 0.25f);
         }
-#endif
     }
 }

@@ -5,6 +5,10 @@ namespace BunnyCoffee
     public class CameraFollow : MonoBehaviour
     {
         [SerializeField]
+        [Tooltip("Boundaries the camera cannot escape from.")]
+        Rect boundaries;
+
+        [SerializeField]
         [Header("Follow Settings")]
         [Tooltip("Whether the camera should follow a target.")]
         bool isFollowing = false;
@@ -18,7 +22,6 @@ namespace BunnyCoffee
         float baseDistance = 5f;
 
         [SerializeField]
-        [Header("Follow Settings")]
         [Tooltip("How smoothly the camera follows the target.")]
         float smoothSpeed = 0.125f;
 
@@ -72,6 +75,8 @@ namespace BunnyCoffee
             Interact();
             HandleZoomEffect();
             HandleRotationEffect();
+            ClampCamera();
+
         }
 
         public void SetRotationState(bool enable)
@@ -197,6 +202,36 @@ namespace BunnyCoffee
             float t = (Mathf.Sin(currentRotationTime) + 1f) / 2f;
             float angle = Mathf.Lerp(-rotationFactor, rotationFactor, t);
             transform.rotation = Quaternion.Euler(0, 0, angle);
+        }
+
+
+        void ClampCamera()
+        {
+            Vector3 cameraPosition = cam.transform.position;
+            float cameraHeight = cam.orthographicSize;
+            float cameraWidth = cam.aspect * cameraHeight;
+
+            // Clamp the x position
+            if (cameraPosition.x - cameraWidth < boundaries.xMin)
+            {
+                cameraPosition.x = boundaries.xMin + cameraWidth;
+            }
+            else if (cameraPosition.x + cameraWidth > boundaries.xMax)
+            {
+                cameraPosition.x = boundaries.xMax - cameraWidth;
+            }
+
+            // Clamp the y position
+            if (cameraPosition.y - cameraHeight < boundaries.yMin)
+            {
+                cameraPosition.y = boundaries.yMin + cameraHeight;
+            }
+            else if (cameraPosition.y + cameraHeight > boundaries.yMax)
+            {
+                cameraPosition.y = boundaries.yMax - cameraHeight;
+            }
+
+            cam.transform.position = cameraPosition;
         }
     }
 }

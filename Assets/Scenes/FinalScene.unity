@@ -13624,7 +13624,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bb37ff9f93074276a68962cd359bb65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowIntro: 0
+  ShowIntro: 1
   IsActive: 0
   resources: {fileID: 671713568}
   gameState: {fileID: 1674075926}

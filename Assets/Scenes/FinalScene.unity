@@ -5940,7 +5940,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: -20
     y: 0
-    width: 50
+    width: 40
     height: 40
   isFollowing: 0
   followTarget: {fileID: 0}

@@ -109,14 +109,17 @@ namespace BunnyCoffee
                 float mouseX = Input.GetAxis("Mouse X");
                 float mouseY = Input.GetAxis("Mouse Y");
                 isFollowing = false;
-                Vector3 move = new Vector3(-mouseX, -mouseY, 0) * baseDistance * 0.1f;
+
+                // Adjust the movement speed based on the device type
+                float speedFactor = Application.isMobilePlatform ? 0.05f : 0.1f;
+                Vector3 move = new Vector3(-mouseX, -mouseY, 0) * baseDistance * speedFactor;
                 transform.Translate(move, Space.Self);
             }
 
             if (Input.GetMouseButtonUp(0))
             {
                 Vector3 mouseWorldPos = cam.ScreenToWorldPoint(Input.mousePosition);
-                Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+                Vector2 mousePos2D = new(mouseWorldPos.x, mouseWorldPos.y);
                 RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos2D, Vector2.zero);
 
                 foreach (RaycastHit2D hit in hits)
@@ -145,6 +148,39 @@ namespace BunnyCoffee
 
                 Vector3 cameraPosToMouse = mouseWorldPos - transform.position;
                 Vector3 newCameraPos = mouseWorldPos - (cameraPosToMouse * zoomFactor);
+                transform.position = new Vector3(newCameraPos.x, newCameraPos.y, transform.position.z);
+            }
+            if (Input.touchCount == 2)
+            {
+                Touch touchZero = Input.GetTouch(0);
+                Touch touchOne = Input.GetTouch(1);
+
+                Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+                Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+
+                float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+                float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
+
+                float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+
+                float newZoom = Mathf.Clamp(cam.orthographicSize + deltaMagnitudeDiff * 0.01f, 4f, 16f);
+                float zoomFactor = newZoom / cam.orthographicSize;
+
+                baseDistance += deltaMagnitudeDiff * 0.01f;
+                baseDistance = Mathf.Clamp(baseDistance, 4f, 16f);
+
+                cam.orthographicSize = newZoom;
+
+                Vector3 touchZeroWorldPos = cam.ScreenToWorldPoint(touchZero.position);
+                Vector3 touchOneWorldPos = cam.ScreenToWorldPoint(touchOne.position);
+                Vector3 touchZeroPrevWorldPos = cam.ScreenToWorldPoint(touchZeroPrevPos);
+                Vector3 touchOnePrevWorldPos = cam.ScreenToWorldPoint(touchOnePrevPos);
+                Vector3 cameraPosToTouchZero = touchZeroWorldPos - transform.position;
+                Vector3 cameraPosToTouchOne = touchOneWorldPos - transform.position;
+                Vector3 cameraPosToTouchZeroPrev = touchZeroPrevWorldPos - transform.position;
+                Vector3 cameraPosToTouchOnePrev = touchOnePrevWorldPos - transform.position;
+
+                Vector3 newCameraPos = transform.position + (cameraPosToTouchZeroPrev - cameraPosToTouchZero) + (cameraPosToTouchOnePrev - cameraPosToTouchOne);
                 transform.position = new Vector3(newCameraPos.x, newCameraPos.y, transform.position.z);
             }
         }
@@ -212,23 +248,41 @@ namespace BunnyCoffee
             float cameraWidth = cam.aspect * cameraHeight;
 
             // Clamp the x position
-            if (cameraPosition.x - cameraWidth < boundaries.xMin)
+            var outsideMinX = cameraPosition.x - cameraWidth < boundaries.xMin;
+            var outsideMaxX = cameraPosition.x + cameraWidth > boundaries.xMax;
+            if (outsideMinX && outsideMaxX)
             {
-                cameraPosition.x = boundaries.xMin + cameraWidth;
+                cameraPosition.x = (boundaries.xMin + boundaries.xMax) / 2;
             }
-            else if (cameraPosition.x + cameraWidth > boundaries.xMax)
+            else
             {
-                cameraPosition.x = boundaries.xMax - cameraWidth;
+                if (outsideMinX)
+                {
+                    cameraPosition.x = boundaries.xMin + cameraWidth;
+                }
+                if (outsideMaxX)
+                {
+                    cameraPosition.x = boundaries.xMax - cameraWidth;
+                }
             }
 
             // Clamp the y position
-            if (cameraPosition.y - cameraHeight < boundaries.yMin)
+            var outsideMinY = cameraPosition.y - cameraHeight < boundaries.yMin;
+            var outsideMaxY = cameraPosition.y + cameraHeight > boundaries.yMax;
+            if (outsideMinY && outsideMaxY)
             {
-                cameraPosition.y = boundaries.yMin + cameraHeight;
+                cameraPosition.y = (boundaries.yMin + boundaries.yMax) / 2;
             }
-            else if (cameraPosition.y + cameraHeight > boundaries.yMax)
+            else
             {
-                cameraPosition.y = boundaries.yMax - cameraHeight;
+                if (outsideMinY)
+                {
+                    cameraPosition.y = boundaries.yMin + cameraHeight;
+                }
+                if (outsideMaxY)
+                {
+                    cameraPosition.y = boundaries.yMax - cameraHeight;
+                }
             }
 
             cam.transform.position = cameraPosition;
